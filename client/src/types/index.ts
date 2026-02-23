@@ -31,6 +31,7 @@ export interface Candidate {
   skills: CandidateSkills;
   color: string;
   role: string;
+  roleId: string;
   duration: number;
 }
 
@@ -73,9 +74,10 @@ export interface DashboardMetrics {
 }
 
 // ── Interview setup ───────────────────────────────────────────────────────────
-export interface Competency {
+export interface Criterion {
   id: string;
   name: string;
+  description: string;
   weight: number;
   questionCount: number;
   color: string;
@@ -108,7 +110,7 @@ export interface InterviewQuestion {
 }
 
 // ── Evaluation ────────────────────────────────────────────────────────────────
-export interface CompetencyScore {
+export interface CriterionScore {
   name: string;
   score: number;
   rationale: string;
@@ -119,7 +121,7 @@ export interface CompetencyScore {
 export interface CandidateEvaluation {
   candidate: Candidate;
   confidence: number;
-  competencyScores: CompetencyScore[];
+  criterionScores: CriterionScore[];
   transcript: TranscriptMessage[];
 }
 
@@ -169,9 +171,25 @@ export interface InterviewTemplate {
   name: string;
   role: string;
   duration: number;
-  competencyCount: number;
+  criteriaCount: number;
   usedCount: number;
 }
 
-// ── Health (keep existing) ────────────────────────────────────────────────────
+// ── Candidate grouping ───────────────────────────────────────────────────────
+export interface RoleCandidateGroup {
+  role: Role;
+  candidates: Candidate[];
+}
+
+// ── Legacy types kept for boilerplate compatibility ───────────────────────────
+export interface Item {
+  id: string;
+  name: string;
+  description: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ── Health ────────────────────────────────────────────────────────────────────
 export interface HealthStatus { status: string; version: string; }
