@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { seveumApi } from "../api/seveum";
+import { rolesApi } from "../api/roles";
+import { candidatesApi } from "../api/candidates";
 
 export function useRankings() {
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
@@ -9,7 +10,7 @@ export function useRankings() {
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
-    queryFn: () => seveumApi.getRoles(),
+    queryFn: () => rolesApi.list(),
     staleTime: 30_000,
   });
 
@@ -18,7 +19,7 @@ export function useRankings() {
 
   const candidatesQuery = useQuery({
     queryKey: ["candidates", activeRoleId],
-    queryFn: () => seveumApi.getCandidates(activeRoleId ?? undefined),
+    queryFn: () => candidatesApi.list(activeRoleId ?? undefined),
     enabled: !!activeRoleId,
     staleTime: 30_000,
   });

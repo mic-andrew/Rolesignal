@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { RiSearchLine, RiArrowDownSLine } from "react-icons/ri";
 import { useCandidates } from "../hooks/useCandidates";
 import { CandidateCard } from "../components/shared/CandidateCard";
@@ -18,11 +19,12 @@ export default function Candidates() {
     groupedByRole, isLoading, search, setSearch, filter, setFilter,
     collapsedRoles, toggleRoleCollapsed,
   } = useCandidates();
+  const navigate = useNavigate();
 
   return (
     <div>
       {/* Search + filters */}
-      <div className="flex animate-fade-in" style={{ gap: 10, marginBottom: 20 }}>
+      <div className="flex items-center animate-fade-in" style={{ gap: 10, marginBottom: 20 }}>
         <div
           className="flex items-center flex-1"
           style={{ gap: 8, padding: "7px 16px", background: "var(--color-layer)", border: "1px solid var(--color-edge)", borderRadius: 8 }}
@@ -52,7 +54,11 @@ export default function Candidates() {
       {isLoading ? (
         <LoadingSkeleton rows={3} />
       ) : groupedByRole.length === 0 ? (
-        <EmptyState title="No candidates found" description="Try adjusting your search or filters." />
+        <EmptyState
+          title="No candidates yet"
+          description="Candidates are added when you create an interview."
+          action={{ label: "Create Interview", onClick: () => navigate("/setup") }}
+        />
       ) : (
         groupedByRole.map((group) => {
           const isCollapsed = collapsedRoles.has(group.role.id);

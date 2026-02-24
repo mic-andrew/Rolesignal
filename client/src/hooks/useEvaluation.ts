@@ -1,13 +1,15 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { seveumApi } from "../api/seveum";
+import { evaluationsApi } from "../api/evaluations";
+import { candidatesApi } from "../api/candidates";
+import { rolesApi } from "../api/roles";
 
 export function useEvaluation(candidateId = "1") {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const query = useQuery({
     queryKey: ["evaluation", candidateId],
-    queryFn: () => seveumApi.getEvaluation(candidateId),
+    queryFn: () => evaluationsApi.get(candidateId),
     staleTime: 60_000,
   });
 
@@ -15,14 +17,14 @@ export function useEvaluation(candidateId = "1") {
 
   const roleCandidatesQuery = useQuery({
     queryKey: ["candidates", roleId],
-    queryFn: () => seveumApi.getCandidates(roleId!),
+    queryFn: () => candidatesApi.list(roleId!),
     enabled: !!roleId,
     staleTime: 30_000,
   });
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
-    queryFn: () => seveumApi.getRoles(),
+    queryFn: () => rolesApi.list(),
     staleTime: 30_000,
   });
 

@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { RiArrowLeftLine, RiArrowRightLine, RiAddLine, RiUpload2Line, RiGroupLine, RiPlayLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiArrowRightLine, RiAddLine, RiUpload2Line, RiGroupLine } from "react-icons/ri";
 import { useSetupInterview } from "../hooks/useSetupInterview";
 import { StepRail } from "../components/shared/StepRail";
 import { CriteriaCard } from "../components/shared/CriteriaCard";
@@ -21,7 +20,6 @@ const inputCls: React.CSSProperties = {
 };
 
 export default function SetupInterview() {
-  const navigate = useNavigate();
   const hook = useSetupInterview();
 
   return (
@@ -136,14 +134,17 @@ export default function SetupInterview() {
               </div>
             </Card>
 
-            {/* Weight visualizer */}
-            <div className="flex overflow-hidden" style={{ borderRadius: 6, marginBottom: 14, height: 8, boxShadow: "inset 0 1px 3px rgba(0,0,0,0.3)" }}>
-              {hook.criteria.map((c) => (
-                <div
-                  key={c.id}
-                  style={{ flex: c.weight, background: c.color, transition: "flex 0.4s cubic-bezier(0.16,1,0.3,1)" }}
-                />
-              ))}
+            {/* Weight bar */}
+            <div style={{ borderRadius: 6, marginBottom: 14, height: 6, background: "var(--color-edge)", overflow: "hidden" }}>
+              <div
+                style={{
+                  height: "100%",
+                  width: `${Math.min(hook.totalWeight, 100)}%`,
+                  background: hook.totalWeight === 100 ? "var(--color-success)" : "var(--color-brand)",
+                  borderRadius: 6,
+                  transition: "width 0.3s, background 0.3s",
+                }}
+              />
             </div>
 
             {/* Criteria cards */}
@@ -274,7 +275,7 @@ export default function SetupInterview() {
             </div>
             <h3 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", color: "var(--color-ink)", marginBottom: 8 }}>Ready to Launch</h3>
             <p style={{ fontSize: 14, color: "var(--color-ink2)", maxWidth: 380, margin: "0 auto 24px" }}>
-              {hook.roleData.roleTitle} interview with {hook.emails.length} candidates, {hook.config.duration}-minute {hook.config.tone.toLowerCase()} AI sessions.
+              {hook.roleData.roleTitle || "Untitled Role"} &mdash; {hook.config.duration}-minute {hook.config.tone.toLowerCase()} AI interview{hook.emails.length > 0 ? ` with ${hook.emails.length} candidate${hook.emails.length !== 1 ? "s" : ""}` : ""}.
             </p>
 
             <div className="flex justify-center" style={{ gap: 10, marginBottom: 28 }}>
@@ -283,7 +284,7 @@ export default function SetupInterview() {
                 { l: "Duration",     v: `${hook.config.duration}m` },
                 { l: "Candidates",   v: hook.emails.length },
                 { l: "Questions",    v: `~${hook.criteria.reduce((s, c) => s + c.questionCount, 0)}` },
-              ].map((s) => (
+              ].filter((s) => !(s.l === "Candidates" && s.v === 0)).map((s) => (
                 <div key={s.l} style={{ padding: "14px 20px", background: "var(--color-canvas2)", borderRadius: 12, border: "1px solid var(--color-edge)", minWidth: 80 }}>
                   <div style={{ fontSize: 20, fontWeight: 800, fontFamily: "var(--font-family-mono)", color: "var(--color-brand)" }}>{s.v}</div>
                   <div style={{ fontSize: 11, color: "var(--color-ink3)", fontWeight: 500, marginTop: 2 }}>{s.l}</div>
@@ -292,11 +293,8 @@ export default function SetupInterview() {
             </div>
 
             <div className="flex justify-center" style={{ gap: 12 }}>
-              <Button variant="ghost" size="lg" onClick={() => navigate("/lobby")}>
-                <RiPlayLine size={16} />Preview Interview
-              </Button>
-              <Button size="lg" onClick={() => navigate("/dashboard")}>
-                Send Invitations<RiArrowRightLine size={14} />
+              <Button size="lg" onClick={() => hook.submitRole()} style={{ opacity: hook.submitPending ? 0.7 : 1 }}>
+                {hook.submitPending ? "Creating..." : "Create Role"}<RiArrowRightLine size={14} />
               </Button>
             </div>
           </Card>

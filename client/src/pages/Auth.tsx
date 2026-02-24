@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { RiArrowRightLine } from "react-icons/ri";
+import { RiArrowRightLine, RiLoader4Line, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import { Button } from "../components/ui/Button";
 import { Avatar } from "../components/ui/Avatar";
+import { useAuth } from "../hooks/useAuth";
 
 function Logo() {
   return (
@@ -54,7 +54,34 @@ const fieldStyle: React.CSSProperties = {
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const { login, register, loginPending, registerPending, loginError, registerError } = useAuth();
+
+  const switchMode = (newMode: "login" | "signup") => {
+    setMode(newMode);
+    setEmail("");
+    setPassword("");
+    setName("");
+    setOrgName("");
+    setShowPassword(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mode === "login") {
+      login({ email, password });
+    } else {
+      register({ email, password, name, org_name: orgName });
+    }
+  };
+
+  const isPending = loginPending || registerPending;
+  const error = loginError || registerError;
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "var(--color-canvas)" }}>
@@ -71,10 +98,7 @@ export default function Auth() {
           overflow: "hidden",
         }}
       >
-        {/* Radial glow */}
         <div style={{ position: "absolute", top: "50%", left: "35%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,111,255,0.06), transparent 70%)", transform: "translate(-50%,-50%)" }} />
-
-        {/* Concentric rings */}
         {[0,1,2,3,4].map((i) => (
           <div
             key={i}
@@ -88,12 +112,10 @@ export default function Auth() {
             }}
           />
         ))}
-
-        {/* Content */}
         <div style={{ position: "relative", zIndex: 1 }}>
           <div className="flex items-center animate-fade-in" style={{ gap: 10, marginBottom: 72 }}>
             <Logo />
-            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--color-ink)" }}>Seveum</span>
+            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--color-ink)" }}>RoleSignal</span>
           </div>
           <h1 className="animate-fade-in delay-2" style={{ fontSize: 46, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.04em", maxWidth: 440 }}>
             Autonomous AI{" "}
@@ -105,8 +127,6 @@ export default function Auth() {
             Replace manual screening calls with structured, real-time AI interviews that produce explainable hiring intelligence.
           </p>
         </div>
-
-        {/* Social proof */}
         <div className="flex items-center animate-fade-in delay-5" style={{ position: "relative", zIndex: 1, gap: 12 }}>
           {[{ i: "SC", c: "#7C6FFF" }, { i: "MJ", c: "#22C997" }, { i: "PP", c: "#FFAD33" }].map((a) => (
             <Avatar key={a.i} initials={a.i} size={28} color={a.c} />
@@ -117,18 +137,17 @@ export default function Auth() {
 
       {/* Form panel */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 48, background: "var(--color-canvas)" }}>
-        <div style={{ width: "100%", maxWidth: 380 }} className="animate-fade-in delay-3">
+        <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 380 }} className="animate-fade-in delay-3">
           <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6, color: "var(--color-ink)" }}>
             {mode === "login" ? "Welcome back" : "Get started"}
           </h2>
           <p style={{ fontSize: 14, color: "var(--color-ink3)", marginBottom: 32, fontWeight: 400 }}>
-            {mode === "login" ? "Sign in to your Seveum workspace" : "Create your account to begin"}
+            {mode === "login" ? "Sign in to your workspace" : "Create your account to begin"}
           </p>
 
-          {/* SSO buttons */}
           <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
             {[{ label: "Google", icon: <GoogleIcon /> }, { label: "Microsoft", icon: <MicrosoftIcon /> }].map(({ label, icon }) => (
-              <Button key={label} variant="ghost" className="flex-1 justify-center" style={{ padding: "11px 0", gap: 8 }}>
+              <Button key={label} variant="ghost" className="flex-1 justify-center" style={{ padding: "11px 0", gap: 8 }} type="button">
                 {icon}<span>{label}</span>
               </Button>
             ))}
@@ -141,35 +160,74 @@ export default function Auth() {
           </div>
 
           {mode === "signup" && (
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Full Name</label>
-              <input style={fieldStyle} placeholder="Jane Smith" />
-            </div>
+            <>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Full Name</label>
+                <input style={fieldStyle} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+              </div>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Organization</label>
+                <input style={fieldStyle} placeholder="Acme Inc." value={orgName} onChange={(e) => setOrgName(e.target.value)} required />
+              </div>
+            </>
           )}
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Email</label>
-            <input type="email" style={fieldStyle} placeholder="you@company.com" />
+            <input type="email" style={fieldStyle} placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </div>
           <div style={{ marginBottom: 28 }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Password</label>
-            <input type="password" style={fieldStyle} placeholder="Enter your password" />
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPassword ? "text" : "password"}
+                style={{ ...fieldStyle, paddingRight: 40 }}
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                style={{
+                  position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer",
+                  color: "var(--color-ink3)", padding: 4, display: "flex",
+                }}
+              >
+                {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
+              </button>
+            </div>
           </div>
 
-          <Button full size="lg" onClick={() => navigate("/dashboard")}>
-            {mode === "login" ? "Sign In" : "Create Account"}
-            <RiArrowRightLine size={14} />
+          {error && (
+            <p style={{ fontSize: 12, color: "#EF4444", marginBottom: 14 }}>
+              {(error as Error & { response?: { data?: { detail?: string } } })?.response?.data?.detail || "Something went wrong"}
+            </p>
+          )}
+
+          <Button full size="lg" type="submit" disabled={isPending}>
+            {isPending ? (
+              <RiLoader4Line size={16} className="animate-spin" />
+            ) : (
+              <>
+                {mode === "login" ? "Sign In" : "Create Account"}
+                <RiArrowRightLine size={14} />
+              </>
+            )}
           </Button>
 
           <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "var(--color-ink3)" }}>
             {mode === "login" ? "No account? " : "Have an account? "}
             <span
               style={{ color: "var(--color-brand)", cursor: "pointer", fontWeight: 600 }}
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              onClick={() => switchMode(mode === "login" ? "signup" : "login")}
             >
               {mode === "login" ? "Sign up" : "Sign in"}
             </span>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

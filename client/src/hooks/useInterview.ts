@@ -1,6 +1,8 @@
 import { useState, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { interviewPublicApi, type InterviewPublicData } from "../api/interview";
 import type { InterviewStage, TranscriptMessage } from "../types";
-import { TRANSCRIPT } from "../api/seveum";
 
 const STAGES: InterviewStage[] = ["Intro", "Technical", "Behavioral", "Situational", "Closing"];
 
@@ -13,34 +15,75 @@ const QUESTIONS: Record<InterviewStage, string[]> = {
 };
 
 export function useInterview() {
-  const [stageIndex, setStageIndex]     = useState(0);
+  const { token } = useParams<{ token: string }>();
+  const [stageIndex, setStageIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [transcript, setTranscript]     = useState<TranscriptMessage[]>(TRANSCRIPT.slice(0, 2));
+  const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
 
-  const currentStage    = STAGES[stageIndex];
-  const stageQuestions  = QUESTIONS[currentStage];
+  const interviewQuery = useQuery<InterviewPublicData>({
+    queryKey: ["interview-public", token],
+    queryFn: () => interviewPublicApi.getInterview(token!),
+    enabled: !!token,
+    staleTime: 60_000,
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: (text: string) => interviewPublicApi.sendMessage(token!, text),
+    onSuccess: (response) => {
+      setTranscript((t) => [
+        ...t,
+        {
+          id: `ai-${Date.now()}`,
+          speaker: "ai" as const,
+          text: response.text,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+    },
+  });
+
+  const currentStage = STAGES[stageIndex];
+  const stageQuestions = QUESTIONS[currentStage];
   const currentQuestion = stageQuestions[questionIndex] ?? stageQuestions[0];
-  const visibleTranscript = transcript.slice(0, (questionIndex + 1) * 2);
 
   const advanceQuestion = useCallback(() => {
     if (questionIndex < stageQuestions.length - 1) {
       setQuestionIndex((q) => q + 1);
-      setTranscript((t) => [...t, ...TRANSCRIPT.slice(t.length, t.length + 2)]);
     } else if (stageIndex < STAGES.length - 1) {
       setStageIndex((s) => s + 1);
       setQuestionIndex(0);
-      setTranscript((t) => [...t, ...TRANSCRIPT.slice(t.length, t.length + 2)]);
     }
   }, [questionIndex, stageQuestions.length, stageIndex]);
 
+  const sendMessage = useCallback(
+    (text: string) => {
+      setTranscript((t) => [
+        ...t,
+        {
+          id: `cand-${Date.now()}`,
+          speaker: "candidate" as const,
+          text,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+      sendMessageMutation.mutate(text);
+    },
+    [sendMessageMutation],
+  );
+
   return {
+    token: token ?? "",
+    interview: interviewQuery.data ?? null,
+    isLoading: interviewQuery.isLoading,
     stages: STAGES,
     stageIndex,
     currentStage,
     currentQuestion,
     questionIndex,
     stageQuestions,
-    visibleTranscript,
+    transcript,
     advanceQuestion,
+    sendMessage,
+    isSending: sendMessageMutation.isPending,
   };
 }

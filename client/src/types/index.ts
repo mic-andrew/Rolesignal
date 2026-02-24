@@ -45,7 +45,6 @@ export interface Role {
   candidateCount: number;
   avgScore: number;
   status: RoleStatus;
-  daysAgo: number;
 }
 
 // ── Pipeline ──────────────────────────────────────────────────────────────────
@@ -181,15 +180,3 @@ export interface RoleCandidateGroup {
   candidates: Candidate[];
 }
 
-// ── Legacy types kept for boilerplate compatibility ───────────────────────────
-export interface Item {
-  id: string;
-  name: string;
-  description: string | null;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// ── Health ────────────────────────────────────────────────────────────────────
-export interface HealthStatus { status: string; version: string; }
