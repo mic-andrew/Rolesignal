@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { seveumApi } from "../api/seveum";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { candidatesApi } from "../api/candidates";
+import { rolesApi } from "../api/roles";
+import { useUIStore } from "../stores/uiStore";
 import type { CandidateStatus, RoleCandidateGroup } from "../types";
 
 type FilterOption = CandidateStatus | "all";
@@ -9,17 +11,38 @@ export function useCandidates() {
   const [search, setSearch]                 = useState("");
   const [filter, setFilter]                 = useState<FilterOption>("all");
   const [collapsedRoles, setCollapsedRoles] = useState<Set<string>>(new Set());
+  const queryClient = useQueryClient();
+  const showToast = useUIStore((s) => s.showToast);
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
-    queryFn: () => seveumApi.getRoles(),
+    queryFn: () => rolesApi.list(),
     staleTime: 30_000,
   });
 
   const candidatesQuery = useQuery({
     queryKey: ["candidates"],
-    queryFn: () => seveumApi.getCandidates(),
+    queryFn: () => candidatesApi.list(),
     staleTime: 30_000,
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: CandidateStatus }) =>
+      candidatesApi.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      showToast("Candidate status updated", "success");
+    },
+    onError: () => showToast("Failed to update candidate status", "error"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => candidatesApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      showToast("Candidate removed", "success");
+    },
+    onError: () => showToast("Failed to remove candidate", "error"),
   });
 
   const roles = rolesQuery.data ?? [];
@@ -62,5 +85,8 @@ export function useCandidates() {
     setFilter,
     collapsedRoles,
     toggleRoleCollapsed,
+    updateStatus: updateStatusMutation.mutate,
+    deleteCandidate: deleteMutation.mutate,
+    deletePending: deleteMutation.isPending,
   };
 }

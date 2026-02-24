@@ -60,6 +60,18 @@ input:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.08) !important;
 }
 
+/* Force dark background on browser autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #171730 inset !important;
+  -webkit-text-fill-color: #EEEEF8 !important;
+  caret-color: #EEEEF8 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -67,6 +79,12 @@ input[type="range"] {
   border-radius: 3px;
   outline: none;
   cursor: pointer;
+  background: #252550;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 3px;
+  background: #252550;
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -77,6 +95,7 @@ input[type="range"]::-webkit-slider-thumb {
   box-shadow: 0 0 8px rgba(124, 111, 255, 0.4);
   cursor: pointer;
   transition: box-shadow 0.2s;
+  margin-top: -5.5px;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 14px rgba(124, 111, 255, 0.6);

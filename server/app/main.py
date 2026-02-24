@@ -2,15 +2,27 @@
 
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-from app.api import items
-from app.config import settings
+from app.api import (
+    auth,
+    audit,
+    candidates,
+    dashboard,
+    evaluations,
+    interview_public,
+    interviews,
+    onboarding,
+    roles,
+    settings,
+)
+from app.config import settings as app_settings
 from app.schemas.common import HealthResponse
 
 logging.basicConfig(
-    level=getattr(logging, settings.log_level),
+    level=getattr(logging, app_settings.log_level),
     format="%(asctime)s %(name)s %(levelname)s %(message)s",
 )
 
@@ -20,18 +32,47 @@ app = FastAPI(
     title="RoleSignal API",
     description="RoleSignal API",
     version="0.1.0",
+    redirect_slashes=False,
 )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(
+    request: Request, exc: Exception,
+) -> JSONResponse:
+    """Catch unhandled exceptions, return structured JSON."""
+    logger.exception(
+        "unhandled_error path=%s", request.url.path,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "An internal error occurred. Please try again.",
+        },
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=app_settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register routers
-app.include_router(items.router, prefix="/api")
+# Public routes
+app.include_router(auth.router, prefix="/api")
+app.include_router(interview_public.router, prefix="/api")
+
+# Protected routes
+app.include_router(onboarding.router, prefix="/api")
+app.include_router(dashboard.router, prefix="/api")
+app.include_router(roles.router, prefix="/api")
+app.include_router(candidates.router, prefix="/api")
+app.include_router(interviews.router, prefix="/api")
+app.include_router(evaluations.router, prefix="/api")
+app.include_router(settings.router, prefix="/api")
+app.include_router(audit.router, prefix="/api")
 
 
 @app.get("/health", response_model=HealthResponse)

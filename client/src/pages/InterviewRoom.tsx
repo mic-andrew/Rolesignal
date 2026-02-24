@@ -53,14 +53,18 @@ function MeetButton({
 export default function InterviewRoom() {
   const navigate = useNavigate();
   const {
-    stages, stageIndex, currentStage, currentQuestion,
-    questionIndex, stageQuestions, visibleTranscript, advanceQuestion,
+    token, interview, stages, stageIndex, currentStage, currentQuestion,
+    questionIndex, stageQuestions, transcript, advanceQuestion,
   } = useInterview();
 
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [captionsOn, setCaptionsOn] = useState(false);
+
+  const candidateName = interview?.candidateName ?? "Candidate";
+  const candidateInitials = candidateName.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+  const orgName = interview?.orgName ?? "RoleSignal";
 
   const timeStr = "28:34";
   const totalQ = stages.length * 3;
@@ -83,7 +87,7 @@ export default function InterviewRoom() {
             <path d="M8 16L16 8L24 16L16 24Z" fill="white" opacity="0.85" />
             <path d="M12 16L16 12L20 16L16 20Z" fill="url(#meet-lg)" />
           </svg>
-          <span className="text-[15px] font-semibold tracking-tight">Seveum Interview</span>
+          <span className="text-[15px] font-semibold tracking-tight">{orgName} Interview</span>
           <span className="text-xs" style={{ color: "#5F6368" }}>|</span>
           <span className="text-[13px] font-mono" style={{ color: "#9AA0A6" }}>{timeStr}</span>
         </div>
@@ -122,14 +126,14 @@ export default function InterviewRoom() {
         {/* Video grid */}
         <div className="flex-1 flex gap-3">
           {/* Candidate tile (large) */}
-          <div className="flex-[2] relative rounded-lg overflow-hidden" style={{ background: "#3C4043" }}>
+          <div className="flex-2 relative rounded-lg overflow-hidden" style={{ background: "#3C4043" }}>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Avatar initials="SC" size={120} color="#7C6FFF" />
+              <Avatar initials={candidateInitials} size={120} color="#7C6FFF" />
             </div>
 
             {/* Name overlay bottom-left */}
             <div className="absolute bottom-3 left-3 flex items-center gap-2 px-2.5 py-1 rounded" style={{ background: "rgba(0,0,0,0.55)" }}>
-              <span className="text-[13px] font-medium">Sarah Chen</span>
+              <span className="text-[13px] font-medium">{candidateName}</span>
             </div>
 
             {/* Progress bar top */}
@@ -157,7 +161,7 @@ export default function InterviewRoom() {
             {captionsOn && (
               <div className="absolute bottom-14 left-1/2 -translate-x-1/2 max-w-[560px] w-full px-4">
                 <div className="rounded-lg px-4 py-2.5 text-center" style={{ background: "rgba(0,0,0,0.75)" }}>
-                  <span className="text-[14px] leading-relaxed">{currentQuestion}</span>
+                  <span className="text-sm leading-relaxed">{currentQuestion}</span>
                 </div>
               </div>
             )}
@@ -190,7 +194,7 @@ export default function InterviewRoom() {
             style={{ background: "#2D2E30" }}
           >
             <div className="flex items-center justify-between px-4 py-3 shrink-0" style={{ borderBottom: "1px solid #3C4043" }}>
-              <span className="text-[14px] font-semibold">Live Transcript</span>
+              <span className="text-sm font-semibold">Live Transcript</span>
               <button
                 onClick={() => setChatOpen(false)}
                 className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer bg-transparent border-0 transition-colors"
@@ -199,12 +203,12 @@ export default function InterviewRoom() {
                 <RiCloseLine size={18} />
               </button>
             </div>
-            <TranscriptPanel messages={visibleTranscript} candidateName="Sarah" showTyping />
+            <TranscriptPanel messages={transcript} candidateName={candidateName.split(" ")[0]} showTyping />
           </div>
         )}
       </div>
 
-      {/* Bottom control bar (Google Meet style) */}
+      {/* Bottom control bar */}
       <div className="flex items-center justify-between px-5 shrink-0" style={{ height: 80 }}>
         {/* Left: question preview */}
         <div className="flex-1 min-w-0 pr-4">
@@ -245,7 +249,7 @@ export default function InterviewRoom() {
             icon={RiPhoneLine}
             danger
             label="End interview"
-            onClick={() => navigate("/processing")}
+            onClick={() => navigate(`/i/${token}/complete`)}
           />
         </div>
 
@@ -258,6 +262,13 @@ export default function InterviewRoom() {
             onClick={() => setChatOpen(!chatOpen)}
           />
         </div>
+      </div>
+
+      {/* Powered by footer */}
+      <div className="text-center pb-2">
+        <span className="text-[10px] font-medium" style={{ color: "#5F6368" }}>
+          Powered by RoleSignal
+        </span>
       </div>
     </div>
   );

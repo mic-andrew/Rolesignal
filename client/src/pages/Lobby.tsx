@@ -4,10 +4,25 @@ import { useLobby } from "../hooks/useLobby";
 import { AIAvatar } from "../components/shared/AIAvatar";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
+import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 
 export default function Lobby() {
   const navigate = useNavigate();
-  const { countdown, canJoin, micOn, camOn, toggleMic, toggleCam } = useLobby();
+  const { token, interview, isLoading, countdown, canJoin, micOn, camOn, toggleMic, toggleCam } = useLobby();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center" style={{ minHeight: "100vh", background: "var(--color-canvas)" }}>
+        <LoadingSkeleton rows={4} />
+      </div>
+    );
+  }
+
+  const roleTitle = interview?.roleTitle ?? "Interview";
+  const orgName = interview?.orgName ?? "Company";
+  const candidateName = interview?.candidateName ?? "Candidate";
+  const brandColor = interview?.orgBrandColor ?? "var(--color-brand)";
+  const duration = interview?.configDuration ?? 30;
 
   return (
     <div
@@ -15,6 +30,7 @@ export default function Lobby() {
         minHeight: "100vh",
         background: "var(--color-canvas)",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: 28,
@@ -44,7 +60,6 @@ export default function Lobby() {
               boxShadow: "var(--sh3)",
             }}
           >
-            {/* Placeholder */}
             <div
               style={{
                 position: "absolute",
@@ -57,24 +72,23 @@ export default function Lobby() {
               }}
             >
               <div
+                className="flex items-center justify-center"
                 style={{
                   width: 72,
                   height: 72,
                   borderRadius: "50%",
                   background: "var(--color-layer2)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                   color: "var(--color-ink3)",
                 }}
               >
                 <RiCameraLine size={28} />
               </div>
-              <span style={{ fontSize: 13, color: "var(--color-ink3)", fontWeight: 500 }}>Camera Preview</span>
+              <span className="text-[13px] font-medium" style={{ color: "var(--color-ink3)" }}>Camera Preview</span>
             </div>
 
             {/* Controls overlay */}
             <div
+              className="flex justify-center"
               style={{
                 position: "absolute",
                 bottom: 0,
@@ -82,8 +96,6 @@ export default function Lobby() {
                 right: 0,
                 padding: 14,
                 background: "linear-gradient(transparent, rgba(0,0,0,0.7))",
-                display: "flex",
-                justifyContent: "center",
                 gap: 10,
               }}
             >
@@ -94,18 +106,14 @@ export default function Lobby() {
                 <button
                   key={idx}
                   onClick={toggle}
+                  className="flex items-center justify-center cursor-pointer transition-all"
                   style={{
                     width: 44,
                     height: 44,
                     borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
                     border: "1px solid rgba(255,255,255,0.1)",
                     background: on ? "rgba(255,255,255,0.12)" : "rgba(255,90,90,0.3)",
                     backdropFilter: "blur(12px)",
-                    transition: "all 0.2s",
                   }}
                 >
                   {on ? <On size={20} color="#fff" /> : <Off size={20} color="var(--color-danger)" />}
@@ -116,18 +124,15 @@ export default function Lobby() {
 
           {/* Connection indicator */}
           <div
+            className="flex items-center gap-2 w-fit"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
               padding: "8px 14px",
               background: "var(--grg)",
               borderRadius: 8,
-              width: "fit-content",
               border: "1px solid rgba(34,201,151,0.15)",
             }}
           >
-            <div style={{ display: "flex", gap: 2 }}>
+            <div className="flex gap-0.5">
               {[10, 14, 18].map((h) => (
                 <div
                   key={h}
@@ -135,90 +140,77 @@ export default function Lobby() {
                 />
               ))}
             </div>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-success)" }}>
+            <span className="text-xs font-semibold" style={{ color: "var(--color-success)" }}>
               Excellent Connection
             </span>
           </div>
         </div>
 
         {/* Right panel */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div className="flex flex-col gap-4">
           {/* Aria card */}
           <Card padding="p-0" style={{ textAlign: "center", padding: 24 }}>
             <AIAvatar size={68} />
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 3, marginTop: 14, color: "var(--color-ink)" }}>
+            <h3 className="text-base font-bold mt-3.5 mb-1" style={{ color: "var(--color-ink)" }}>
               Aria
             </h3>
-            <p style={{ fontSize: 11, color: "var(--color-ink3)", marginBottom: 14, fontWeight: 500 }}>
+            <p className="text-[11px] font-medium mb-3.5" style={{ color: "var(--color-ink3)" }}>
               Your AI Interviewer
             </p>
-            <p style={{ fontSize: 13, color: "var(--color-ink2)", lineHeight: 1.65 }}>
-              Hi Sarah, I'll be conducting your interview for{" "}
-              <strong style={{ color: "var(--color-ink)", fontWeight: 600 }}>Senior Frontend Engineer</strong> at Acme Corp.
+            <p className="text-[13px] leading-relaxed" style={{ color: "var(--color-ink2)" }}>
+              Hi {candidateName.split(" ")[0]}, I'll be conducting your interview for{" "}
+              <strong style={{ color: "var(--color-ink)", fontWeight: 600 }}>{roleTitle}</strong> at {orgName}.
             </p>
           </Card>
 
           {/* Details card */}
           <Card padding="p-0" style={{ padding: 16 }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "var(--color-ink3)",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                marginBottom: 10,
-              }}
-            >
+            <div className="text-[11px] font-semibold uppercase tracking-wide mb-2.5" style={{ color: "var(--color-ink3)" }}>
               Interview Details
             </div>
             {[
-              { l: "Role", v: "Senior Frontend Engineer" },
-              { l: "Company", v: "Acme Corp" },
-              { l: "Duration", v: "30 minutes" },
+              { l: "Role", v: roleTitle },
+              { l: "Company", v: orgName },
+              { l: "Duration", v: `${duration} minutes` },
               { l: "Sections", v: "5 sections" },
             ].map(({ l, v }) => (
               <div
                 key={l}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "7px 0",
-                  borderBottom: "1px solid var(--color-edge)",
-                }}
+                className="flex justify-between"
+                style={{ padding: "7px 0", borderBottom: "1px solid var(--color-edge)" }}
               >
-                <span style={{ fontSize: 12, color: "var(--color-ink3)" }}>{l}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink)" }}>{v}</span>
+                <span className="text-xs" style={{ color: "var(--color-ink3)" }}>{l}</span>
+                <span className="text-xs font-semibold" style={{ color: "var(--color-ink)" }}>{v}</span>
               </div>
             ))}
           </Card>
 
           {/* Countdown / Join */}
-          <div style={{ textAlign: "center", marginTop: 4 }}>
+          <div className="text-center mt-1">
             {!canJoin ? (
               <>
-                <div style={{ fontSize: 11, color: "var(--color-ink3)", fontWeight: 500, marginBottom: 6 }}>
+                <div className="text-[11px] font-medium mb-1.5" style={{ color: "var(--color-ink3)" }}>
                   Interview starts in
                 </div>
                 <div
-                  style={{
-                    fontSize: 40,
-                    fontWeight: 800,
-                    color: "var(--color-brand)",
-                    fontFamily: "var(--font-family-mono)",
-                    letterSpacing: "-0.02em",
-                  }}
+                  className="text-[40px] font-extrabold font-mono"
+                  style={{ color: brandColor, letterSpacing: "-0.02em" }}
                 >
                   {countdown}s
                 </div>
               </>
             ) : (
-              <Button full size="lg" onClick={() => navigate("/interview")}>
+              <Button full size="lg" onClick={() => navigate(`/i/${token}/interview`)}>
                 Join Interview<RiArrowRightLine size={16} />
               </Button>
             )}
           </div>
         </div>
+      </div>
+
+      {/* Powered by footer */}
+      <div className="mt-8 text-[11px] font-medium" style={{ color: "var(--color-ink3)", opacity: 0.6 }}>
+        Powered by RoleSignal
       </div>
     </div>
   );

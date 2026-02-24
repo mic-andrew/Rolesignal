@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { seveumApi } from "../api/seveum";
+import { dashboardApi } from "../api/dashboard";
 
 export function useDashboard() {
   const query = useQuery({
     queryKey: ["dashboard"],
-    queryFn: () => seveumApi.getDashboard(),
+    queryFn: () => dashboardApi.get(),
     staleTime: 30_000,
   });
 

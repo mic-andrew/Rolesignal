@@ -20,6 +20,14 @@ class Settings(BaseSettings):
     app_env: str = "development"
     cors_origins: list[str] = ["http://localhost:5173"]
     log_level: str = "INFO"
+    frontend_url: str = "http://localhost:5173"
+
+    # Auth
+    secret_key: str = "dev-secret-key-change-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 1440  # 24 hours
+    google_client_id: str = ""
+    google_client_secret: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

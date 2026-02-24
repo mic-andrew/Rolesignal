@@ -4,7 +4,8 @@ import { Header } from "./Header";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard":  "Dashboard",
-  "/setup":      "Setup Interview",
+  "/interviews": "Interviews",
+  "/setup":      "Create Interview",
   "/candidates": "Candidates",
   "/evaluation": "Evaluation",
   "/rankings":   "Candidate Rankings",
@@ -14,7 +15,7 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function Layout() {
   const { pathname } = useLocation();
-  const title = PAGE_TITLES[pathname] ?? "Seveum";
+  const title = PAGE_TITLES[pathname] ?? "RoleSignal";
 
   return (
     <div className="flex min-h-screen bg-canvas">
