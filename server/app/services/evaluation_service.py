@@ -9,14 +9,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.candidate import Candidate
+from app.models.criterion import Criterion
 from app.models.criterion_score import CriterionScore
 from app.models.evaluation import Evaluation
 from app.models.interview import Interview
+from app.models.sub_criterion_score import SubCriterionScore
 from app.schemas.candidates import CandidateSkills
 from app.schemas.evaluations import (
     CriterionScoreResponse,
     EvaluationResponse,
     RankingCandidate,
+    SubCriterionScoreResponse,
     TranscriptMessageResponse,
 )
 from app.schemas.candidates import CandidateResponse
@@ -41,6 +44,7 @@ async def get_evaluation(
         select(Evaluation)
         .options(
             selectinload(Evaluation.criterion_scores).selectinload(CriterionScore.criterion),
+            selectinload(Evaluation.sub_criterion_scores).selectinload(SubCriterionScore.sub_criterion),
             selectinload(Evaluation.interview).selectinload(Interview.transcript_messages),
         )
         .join(Interview, Evaluation.interview_id == Interview.id)
@@ -54,6 +58,8 @@ async def get_evaluation(
         raise HTTPException(status_code=404, detail="No evaluation found for this candidate")
 
     scores = evaluation.criterion_scores
+    sub_scores_by_criterion = _group_sub_scores(evaluation.sub_criterion_scores)
+
     criterion_scores = [
         CriterionScoreResponse(
             name=cs.criterion.name if cs.criterion else "Unknown",
@@ -61,6 +67,10 @@ async def get_evaluation(
             rationale=cs.rationale,
             evidence=cs.evidence or [],
             risk_flags=cs.risk_flags or [],
+            weight=cs.criterion.weight if cs.criterion else 0,
+            sub_criterion_scores=sub_scores_by_criterion.get(
+                cs.criterion_id, []
+            ),
         )
         for cs in scores
     ]
@@ -141,3 +151,27 @@ async def get_rankings(
 
     ranked.sort(key=lambda r: r.score, reverse=True)
     return ranked
+
+
+def _group_sub_scores(
+    sub_scores: list[SubCriterionScore],
+) -> dict[str, list[SubCriterionScoreResponse]]:
+    """Group sub-criterion scores by their parent criterion_id."""
+    grouped: dict[str, list[SubCriterionScoreResponse]] = {}
+    for scs in sub_scores:
+        sub = scs.sub_criterion
+        if not sub:
+            continue
+        crit_id = sub.criterion_id
+        if crit_id not in grouped:
+            grouped[crit_id] = []
+        grouped[crit_id].append(
+            SubCriterionScoreResponse(
+                name=sub.name,
+                score=scs.score,
+                rationale=scs.rationale,
+                evidence=scs.evidence or [],
+                weight=sub.weight,
+            )
+        )
+    return grouped

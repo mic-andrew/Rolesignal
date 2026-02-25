@@ -16,6 +16,9 @@ from app.models.transcript_message import TranscriptMessage
 from app.models.audit_event import AuditEvent
 from app.models.interview_template import InterviewTemplate
 from app.models.integration import Integration
+from app.models.sub_criterion import SubCriterion
+from app.models.sub_criterion_score import SubCriterionScore
+from app.models.criteria_template import CriteriaTemplate
 
 __all__ = [
     "Base",
@@ -31,4 +34,7 @@ __all__ = [
     "AuditEvent",
     "InterviewTemplate",
     "Integration",
+    "SubCriterion",
+    "SubCriterionScore",
+    "CriteriaTemplate",
 ]

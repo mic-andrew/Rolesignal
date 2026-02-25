@@ -11,6 +11,10 @@ export function useEvaluation(candidateId = "1") {
     queryKey: ["evaluation", candidateId],
     queryFn: () => evaluationsApi.get(candidateId),
     staleTime: 60_000,
+    retry: false,
+    // Poll every 5s when evaluation is not ready (404)
+    refetchInterval: (query) =>
+      query.state.error ? 5_000 : false,
   });
 
   const roleId = query.data?.candidate.roleId ?? null;

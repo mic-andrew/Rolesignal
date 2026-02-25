@@ -20,14 +20,8 @@ export function Card({
   return (
     <div
       onClick={onClick}
-      style={{
-        background: "linear-gradient(180deg, var(--color-layer), var(--color-layer)ee)",
-        border: "1px solid var(--color-edge)",
-        boxShadow: "var(--sh1)",
-        transition: "all 0.25s cubic-bezier(0.16,1,0.3,1)",
-        ...style,
-      }}
-      className={`rounded-2xl ${padding} ${glow ? "card-glow cursor-pointer" : ""} ${className}`}
+      style={style}
+      className={`rounded-xl bg-layer border border-edge2 shadow-(--sh2) transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] ${padding} ${glow ? "card-glow cursor-pointer" : ""} ${className}`}
     >
       {children}
     </div>

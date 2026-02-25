@@ -1,15 +1,29 @@
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { interviewsApi } from "../api/interviews";
 import type { InterviewResponse } from "../api/interviews";
 import { rolesApi } from "../api/roles";
+import { useUIStore } from "../stores/uiStore";
 
 type StatusFilter = "all" | "pending" | "in_progress" | "completed";
 
+export interface RoleGroup {
+  roleId: string;
+  roleTitle: string;
+  department: string;
+  candidates: InterviewResponse[];
+  pending: number;
+  inProgress: number;
+  completed: number;
+  configDuration: number;
+  configTone: string;
+}
+
 export function useInterviews() {
+  const queryClient = useQueryClient();
+  const showToast = useUIStore((s) => s.showToast);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
 
   const interviewsQuery = useQuery({
     queryKey: ["interviews"],
@@ -23,33 +37,84 @@ export function useInterviews() {
     staleTime: 30_000,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => interviewsApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["interviews"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["roles"] });
+      queryClient.invalidateQueries({ queryKey: ["candidates"] });
+      showToast("Interview deleted", "success");
+    },
+    onError: () => {
+      showToast("Failed to delete interview", "error");
+    },
+  });
+
   const interviews = useMemo(() => interviewsQuery.data ?? [], [interviewsQuery.data]);
   const roles = useMemo(() => rolesQuery.data ?? [], [rolesQuery.data]);
 
+  // Group interviews by roleId
+  const roleGroups = useMemo(() => {
+    const map = new Map<string, RoleGroup>();
+    for (const iv of interviews) {
+      let group = map.get(iv.roleId);
+      if (!group) {
+        group = {
+          roleId: iv.roleId,
+          roleTitle: iv.roleTitle,
+          department: roles.find((r) => r.id === iv.roleId)?.department ?? "",
+          candidates: [],
+          pending: 0,
+          inProgress: 0,
+          completed: 0,
+          configDuration: iv.configDuration,
+          configTone: iv.configTone,
+        };
+        map.set(iv.roleId, group);
+      }
+      group.candidates.push(iv);
+      if (iv.status === "pending") group.pending++;
+      else if (iv.status === "in_progress") group.inProgress++;
+      else if (iv.status === "completed") group.completed++;
+    }
+    return Array.from(map.values());
+  }, [interviews, roles]);
+
+  // Filter
   const filtered = useMemo(() => {
-    return interviews.filter((i: InterviewResponse) => {
+    return roleGroups.filter((g) => {
       const matchesSearch =
-        !search || i.candidateName.toLowerCase().includes(search.toLowerCase());
+        !search ||
+        g.roleTitle.toLowerCase().includes(search.toLowerCase()) ||
+        g.candidates.some((c) =>
+          c.candidateName.toLowerCase().includes(search.toLowerCase()),
+        );
       const matchesStatus =
-        statusFilter === "all" || i.status === statusFilter;
-      const matchesRole =
-        roleFilter === "all" || i.roleId === roleFilter;
-      return matchesSearch && matchesStatus && matchesRole;
+        statusFilter === "all" ||
+        g.candidates.some((c) => c.status === statusFilter);
+      return matchesSearch && matchesStatus;
     });
-  }, [interviews, search, statusFilter, roleFilter]);
+  }, [roleGroups, search, statusFilter]);
 
   const stats = useMemo(() => {
     const all = interviews;
     return {
-      total: all.length,
+      total: roleGroups.length,
       pending: all.filter((i: InterviewResponse) => i.status === "pending").length,
       inProgress: all.filter((i: InterviewResponse) => i.status === "in_progress").length,
       completed: all.filter((i: InterviewResponse) => i.status === "completed").length,
     };
-  }, [interviews]);
+  }, [interviews, roleGroups]);
+
+  const deleteInterview = useCallback(
+    (id: string) => deleteMutation.mutate(id),
+    [deleteMutation],
+  );
 
   return {
-    interviews: filtered,
+    roleGroups: filtered,
+    interviews,
     roles,
     stats,
     isLoading: interviewsQuery.isLoading,
@@ -57,7 +122,6 @@ export function useInterviews() {
     setSearch,
     statusFilter,
     setStatusFilter,
-    roleFilter,
-    setRoleFilter,
+    deleteInterview,
   };
 }

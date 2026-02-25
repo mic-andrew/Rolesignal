@@ -28,12 +28,19 @@ export interface RoleCreatePayload {
   }>;
 }
 
+export interface ParsedSubCriterion {
+  name: string;
+  description: string;
+  weight: number;
+}
+
 export interface ParsedCriterion {
   name: string;
   description: string;
   weight: number;
   questionCount: number;
   color: string;
+  subCriteria: ParsedSubCriterion[];
 }
 
 export const rolesApi = {

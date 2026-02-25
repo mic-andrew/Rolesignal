@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { rolesApi } from "../api/roles";
 import { candidatesApi } from "../api/candidates";
@@ -24,7 +24,13 @@ export function useRankings() {
     staleTime: 30_000,
   });
 
-  const candidates = candidatesQuery.data ?? [];
+  const allCandidates = candidatesQuery.data ?? [];
+
+  // Only show candidates who have completed interviews and been evaluated
+  const candidates = useMemo(
+    () => allCandidates.filter((c) => c.score > 0),
+    [allCandidates],
+  );
 
   const selectRole = (roleId: string) => {
     setSelectedRoleId(roleId);

@@ -12,36 +12,30 @@ export function TranscriptPanel({
   showTyping = false,
 }: TranscriptPanelProps) {
   return (
-    <div className="flex-1 overflow-auto" style={{ padding: 14 }}>
+    <div className="flex-1 overflow-auto p-3.5">
       {messages.map((msg) => (
-        <div key={msg.id} style={{ marginBottom: 14 }}>
+        <div key={msg.id} className="mb-3.5">
           <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              fontFamily: "var(--font-family-mono)",
-              textTransform: "uppercase",
-              letterSpacing: "0.04em",
-              color: msg.speaker === "ai" ? "var(--color-brand)" : "var(--color-success)",
-              marginBottom: 3,
-            }}
+            className={`text-[10px] font-bold font-mono uppercase tracking-[0.04em] mb-[3px] ${
+              msg.speaker === "ai" ? "text-brand" : "text-success"
+            }`}
           >
             {msg.speaker === "ai" ? "Aria" : candidateName}
-            <span style={{ color: "var(--color-ink3)", fontWeight: 400, marginLeft: 6, textTransform: "none" }}>
+            <span className="text-ink3 font-normal ml-1.5 normal-case">
               {msg.timestamp}
             </span>
           </div>
-          <p style={{ fontSize: 13, color: "var(--color-ink2)", lineHeight: 1.65, fontWeight: 400 }}>{msg.text}</p>
+          <p className="text-[13px] text-ink2 leading-[1.65] font-normal">{msg.text}</p>
         </div>
       ))}
 
       {showTyping && (
-        <div className="flex" style={{ gap: 4, padding: 8 }}>
+        <div className="flex gap-1 p-2">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="rounded-full animate-pulse-slow"
-              style={{ width: 5, height: 5, background: "var(--color-ink3)", animationDelay: `${i * 0.2}s` }}
+              className="rounded-full animate-pulse-slow w-[5px] h-[5px] bg-ink3"
+              style={{ animationDelay: `${i * 0.2}s` }}
             />
           ))}
         </div>

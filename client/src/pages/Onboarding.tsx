@@ -14,49 +14,40 @@ const SUBTITLES = [
   "Add a candidate to interview",
 ];
 
-const fieldStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "11px 14px",
-  background: "var(--color-layer)",
-  border: "1px solid var(--color-edge)",
-  borderRadius: 8,
-  color: "var(--color-ink)",
-  fontSize: 13,
-  outline: "none",
-};
+const INPUT_CLS = "input-field";
 
 export default function Onboarding() {
   const hook = useOnboarding();
 
   return (
-    <div className="flex items-center justify-center" style={{ minHeight: "100vh", background: "var(--color-canvas)" }}>
-      <div className="animate-fade-in" style={{ width: "100%", maxWidth: 600, padding: 32 }}>
-        <h1 className="text-center" style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6, color: "var(--color-ink)" }}>
+    <div className="flex items-center justify-center min-h-screen bg-[var(--color-canvas)]">
+      <div className="animate-fade-in w-full max-w-[600px] p-8">
+        <h1 className="text-center text-[28px] font-extrabold tracking-tight mb-1.5 text-[var(--color-ink)]">
           Set up your workspace
         </h1>
-        <p className="text-center text-sm mb-8" style={{ color: "var(--color-ink3)" }}>
+        <p className="text-center text-sm mb-8 text-[var(--color-ink3)]">
           {SUBTITLES[hook.step]}
         </p>
 
         <StepRail steps={STEPS} current={hook.step} onStepClick={() => {}} />
 
-        <Card style={{ marginTop: 24, padding: 24 }}>
+        <Card padding="p-0" className="mt-6 p-6">
           {/* Step 0: Interview Role */}
           {hook.step === 0 && (
             <div className="flex flex-col gap-3.5">
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Role Title</label>
-                <input style={fieldStyle} placeholder="Senior Frontend Engineer" value={hook.roleTitle} onChange={(e) => hook.setRoleTitle(e.target.value)} />
+                <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Role Title</label>
+                <input className={INPUT_CLS} placeholder="Senior Frontend Engineer" value={hook.roleTitle} onChange={(e) => hook.setRoleTitle(e.target.value)} />
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Department</label>
-                  <input style={fieldStyle} value={hook.department} onChange={(e) => hook.setDepartment(e.target.value)} />
+                  <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Department</label>
+                  <input className={INPUT_CLS} value={hook.department} onChange={(e) => hook.setDepartment(e.target.value)} />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Seniority</label>
+                  <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Seniority</label>
                   <select
-                    style={{ ...fieldStyle, appearance: "none" }}
+                    className={`${INPUT_CLS} appearance-none`}
                     value={hook.seniority}
                     onChange={(e) => hook.setSeniority(e.target.value as RoleSeniority)}
                   >
@@ -67,8 +58,8 @@ export default function Onboarding() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Location</label>
-                <input style={fieldStyle} value={hook.location} onChange={(e) => hook.setLocation(e.target.value)} />
+                <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Location</label>
+                <input className={INPUT_CLS} value={hook.location} onChange={(e) => hook.setLocation(e.target.value)} />
               </div>
             </div>
           )}
@@ -76,9 +67,9 @@ export default function Onboarding() {
           {/* Step 1: Criteria */}
           {hook.step === 1 && (
             <div>
-              <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink2)" }}>
-                  Total weight: <span style={{ color: hook.totalWeight === 100 ? "var(--color-success)" : "var(--color-warn)", fontFamily: "var(--font-family-mono)" }}>{hook.totalWeight}%</span>
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[13px] font-semibold text-[var(--color-ink2)]">
+                  Total weight: <span className={`font-mono ${hook.totalWeight === 100 ? "text-[var(--color-success)]" : "text-[var(--color-warn)]"}`}>{hook.totalWeight}%</span>
                 </span>
                 <Button variant="ghost" size="sm" onClick={hook.addCriterion} type="button">
                   <RiAddLine size={14} /> Add
@@ -86,14 +77,11 @@ export default function Onboarding() {
               </div>
 
               {/* Weight bar */}
-              <div style={{ borderRadius: 6, marginBottom: 14, height: 6, background: "var(--color-edge)", overflow: "hidden" }}>
-                <div style={{
-                  height: "100%",
-                  width: `${Math.min(hook.totalWeight, 100)}%`,
-                  background: hook.totalWeight === 100 ? "var(--color-success)" : "var(--color-brand)",
-                  borderRadius: 6,
-                  transition: "width 0.3s, background 0.3s",
-                }} />
+              <div className="rounded-md mb-3.5 h-1.5 bg-[var(--color-edge)] overflow-hidden">
+                <div
+                  className={`h-full rounded-md transition-all duration-300 ${hook.totalWeight === 100 ? "bg-[var(--color-success)]" : "bg-[var(--color-brand)]"}`}
+                  style={{ width: `${Math.min(hook.totalWeight, 100)}%` }}
+                />
               </div>
 
               {hook.criteria.map((c) => (
@@ -104,6 +92,9 @@ export default function Onboarding() {
                   onNameChange={hook.updateCriterionName}
                   onDescriptionChange={hook.updateCriterionDescription}
                   onRemove={hook.removeCriterion}
+                  onAddSub={() => {}}
+                  onUpdateSub={() => {}}
+                  onRemoveSub={() => {}}
                 />
               ))}
             </div>
@@ -112,16 +103,16 @@ export default function Onboarding() {
           {/* Step 2: First Candidate */}
           {hook.step === 2 && (
             <div className="flex flex-col gap-3.5">
-              <p style={{ fontSize: 13, color: "var(--color-ink3)", marginBottom: 4 }}>
+              <p className="text-[13px] text-[var(--color-ink3)] mb-1">
                 Add a candidate to send the first interview. You can skip this and add candidates later.
               </p>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Candidate Name</label>
-                <input style={fieldStyle} placeholder="Jane Smith" value={hook.candidateName} onChange={(e) => hook.setCandidateName(e.target.value)} />
+                <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Candidate Name</label>
+                <input className={INPUT_CLS} placeholder="Jane Smith" value={hook.candidateName} onChange={(e) => hook.setCandidateName(e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Candidate Email</label>
-                <input type="email" style={fieldStyle} placeholder="jane@example.com" value={hook.candidateEmail} onChange={(e) => hook.setCandidateEmail(e.target.value)} />
+                <label className="block text-xs font-semibold mb-1.5 text-[var(--color-ink2)]">Candidate Email</label>
+                <input type="email" className={INPUT_CLS} placeholder="jane@example.com" value={hook.candidateEmail} onChange={(e) => hook.setCandidateEmail(e.target.value)} />
               </div>
             </div>
           )}

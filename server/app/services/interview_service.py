@@ -16,13 +16,16 @@ from app.models.interview import Interview
 from app.models.role import InterviewRole
 from app.models.transcript_message import TranscriptMessage
 from app.models.criterion import Criterion
+from app.models.sub_criterion import SubCriterion
 from app.schemas.interviews import (
+    AddCandidateRequest,
     InterviewCreateRequest,
     InterviewDetailResponse,
     InterviewLaunchRequest,
     InterviewLaunchResponse,
     InterviewListResponse,
     InterviewResponse,
+    InterviewUpdateRequest,
     LaunchInterviewItem,
     LiveCountResponse,
     TranscriptMessageResponse,
@@ -149,6 +152,36 @@ async def complete_interview(
     await db.flush()
 
 
+async def delete_interview(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    user_id: uuid.UUID,
+    interview_id: str,
+) -> None:
+    """Delete an interview and its associated transcript messages."""
+    result = await db.execute(
+        select(Interview)
+        .options(selectinload(Interview.candidate))
+        .where(
+            Interview.id == interview_id,
+            Interview.organization_id == org_id,
+        )
+    )
+    interview = result.scalar_one_or_none()
+    if interview is None:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    candidate_name = interview.candidate.name if interview.candidate else "Unknown"
+    await db.delete(interview)
+    await db.flush()
+
+    await audit_service.log_event(
+        db, org_id, user_id, "human", "Interview Deleted",
+        f"Deleted interview for {candidate_name}", "🗑️",
+    )
+    logger.info("interview_deleted id=%s candidate=%s", interview_id, candidate_name)
+
+
 async def get_live_count(db: AsyncSession, org_id: uuid.UUID) -> LiveCountResponse:
     """Get the count of currently live interviews."""
     count = await db.scalar(
@@ -158,6 +191,124 @@ async def get_live_count(db: AsyncSession, org_id: uuid.UUID) -> LiveCountRespon
         )
     )
     return LiveCountResponse(count=count or 0)
+
+
+async def add_candidate_to_role(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    user_id: uuid.UUID,
+    role_id: str,
+    payload: AddCandidateRequest,
+) -> InterviewResponse:
+    """Add a candidate to an existing role and create their interview."""
+    result = await db.execute(
+        select(InterviewRole).where(
+            InterviewRole.id == role_id,
+            InterviewRole.organization_id == org_id,
+        )
+    )
+    role = result.scalar_one_or_none()
+    if role is None:
+        raise HTTPException(status_code=404, detail="Role not found")
+
+    # Check for duplicate email on this role
+    dup_result = await db.execute(
+        select(Candidate).where(
+            Candidate.role_id == role.id,
+            Candidate.email == payload.email.strip().lower(),
+        )
+    )
+    if dup_result.scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=409, detail="Candidate with this email already exists for this role"
+        )
+
+    initials = _make_initials(payload.name)
+    candidate = Candidate(
+        role_id=role.id,
+        organization_id=org_id,
+        name=payload.name.strip(),
+        initials=initials,
+        email=payload.email.strip().lower(),
+        status="pending",
+    )
+    db.add(candidate)
+    await db.flush()
+
+    token = secrets.token_urlsafe(32)
+    interview = Interview(
+        candidate_id=candidate.id,
+        role_id=role.id,
+        organization_id=org_id,
+        token=token,
+        status="pending",
+        config_duration=payload.config_duration,
+        config_tone=payload.config_tone,
+        config_adaptive=payload.config_adaptive,
+    )
+    db.add(interview)
+    await db.flush()
+
+    link = f"{settings.frontend_url}/i/{token}"
+    sent = await email_service.send_interview_email(
+        to=candidate.email,
+        candidate_name=candidate.name,
+        role_title=role.title,
+        interview_link=link,
+        duration=payload.config_duration,
+    )
+
+    # Attach for response
+    candidate.role = role
+    interview.candidate = candidate
+
+    await audit_service.log_event(
+        db, org_id, user_id, "human", "Candidate Added",
+        f"Added {candidate.name} to '{role.title}'", "👤",
+    )
+
+    logger.info(
+        "candidate_added role=%s candidate=%s email_sent=%s",
+        role.id, candidate.name, sent,
+    )
+    return _to_response(interview)
+
+
+async def update_interview(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    interview_id: str,
+    payload: InterviewUpdateRequest,
+) -> InterviewResponse:
+    """Update interview configuration."""
+    result = await db.execute(
+        select(Interview)
+        .options(
+            selectinload(Interview.candidate),
+            selectinload(Interview.candidate).selectinload(Candidate.role),
+        )
+        .where(Interview.id == interview_id, Interview.organization_id == org_id)
+    )
+    interview = result.scalar_one_or_none()
+    if interview is None:
+        raise HTTPException(status_code=404, detail="Interview not found")
+
+    if interview.status not in ("pending",):
+        raise HTTPException(
+            status_code=400,
+            detail="Can only update pending interviews",
+        )
+
+    if payload.config_duration is not None:
+        interview.config_duration = payload.config_duration
+    if payload.config_tone is not None:
+        interview.config_tone = payload.config_tone
+    if payload.config_adaptive is not None:
+        interview.config_adaptive = payload.config_adaptive
+    await db.flush()
+
+    logger.info("interview_updated id=%s", interview_id)
+    return _to_response(interview)
 
 
 def _to_response(interview: Interview) -> InterviewResponse:
@@ -207,9 +358,9 @@ async def launch_interviews(
     db.add(role)
     await db.flush()
 
-    # 2. Create criteria
+    # 2. Create criteria + sub-criteria
     for i, c in enumerate(payload.criteria):
-        db.add(Criterion(
+        criterion = Criterion(
             role_id=role.id,
             name=c.name,
             description=c.description,
@@ -217,7 +368,18 @@ async def launch_interviews(
             question_count=c.question_count,
             color=c.color,
             sort_order=i,
-        ))
+        )
+        db.add(criterion)
+        await db.flush()
+
+        for j, sc in enumerate(c.sub_criteria):
+            db.add(SubCriterion(
+                criterion_id=criterion.id,
+                name=sc.name,
+                description=sc.description,
+                weight=sc.weight,
+                sort_order=j,
+            ))
     await db.flush()
 
     # 3. Create candidates + interviews + send emails

@@ -27,6 +27,19 @@ export interface TranscriptMessage {
   timestamp: string;
 }
 
+export interface RealtimeSession {
+  clientSecret: string;
+  model: string;
+  voice: string;
+  systemPrompt: string;
+}
+
+export interface TranscriptBatchMessage {
+  speaker: string;
+  text: string;
+  sort_order: number;
+}
+
 export const interviewPublicApi = {
   getInterview: (token: string) =>
     publicClient
@@ -42,4 +55,11 @@ export const interviewPublicApi = {
       .then((r) => r.data),
   completeInterview: (token: string) =>
     publicClient.post(`/api/i/${token}/complete`),
+  getRealtimeSession: (token: string) =>
+    publicClient
+      .post<RealtimeSession>(`/api/i/${token}/realtime-session`)
+      .then((r) => r.data),
+  saveTranscript: (token: string, messages: TranscriptBatchMessage[]) =>
+    publicClient
+      .post(`/api/i/${token}/transcript`, { messages }),
 };

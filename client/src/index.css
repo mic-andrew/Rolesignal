@@ -37,71 +37,74 @@
   --shac: 0 0 0 1px rgba(124,111,255,0.25), 0 4px 20px rgba(124,111,255,0.15);
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Base resets (inside @layer base so Tailwind utilities can override) ── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  background-color: #07070F;
-  color: #EEEEF8;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  body {
+    background-color: #07070F;
+    color: #EEEEF8;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar            { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track      { background: transparent; }
+  ::-webkit-scrollbar-thumb      { background: #252550; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover{ background: #2F2F60; }
+
+  input, textarea, select, button { font-family: inherit; }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: rgba(124, 111, 255, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.08) !important;
+  }
+
+  /* Force dark background on browser autofill */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #171730 inset !important;
+    -webkit-text-fill-color: #EEEEF8 !important;
+    caret-color: #EEEEF8 !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    background: #252550;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: #252550;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #7C6FFF;
+    box-shadow: 0 0 8px rgba(124, 111, 255, 0.4);
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    margin-top: -5.5px;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 14px rgba(124, 111, 255, 0.6);
+  }
 }
 
-::-webkit-scrollbar            { width: 5px; height: 5px; }
-::-webkit-scrollbar-track      { background: transparent; }
-::-webkit-scrollbar-thumb      { background: #252550; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover{ background: #2F2F60; }
-
-input, textarea, select, button { font-family: inherit; }
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: rgba(124, 111, 255, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.08) !important;
-}
-
-/* Force dark background on browser autofill */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-textarea:-webkit-autofill,
-select:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #171730 inset !important;
-  -webkit-text-fill-color: #EEEEF8 !important;
-  caret-color: #EEEEF8 !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 5px;
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-  background: #252550;
-}
-input[type="range"]::-webkit-slider-runnable-track {
-  height: 5px;
-  border-radius: 3px;
-  background: #252550;
-}
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #7C6FFF;
-  box-shadow: 0 0 8px rgba(124, 111, 255, 0.4);
-  cursor: pointer;
-  transition: box-shadow 0.2s;
-  margin-top: -5.5px;
-}
-input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 0 14px rgba(124, 111, 255, 0.6);
-}
-
-/* ── Animations ─────────────────────────── */
+/* ── Animations (keyframes are layer-agnostic) ── */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -141,39 +144,58 @@ input[type="range"]::-webkit-slider-thumb:hover {
   to   { transform: translateX(200%); }
 }
 
-/* ── Utility animation classes ──────────── */
-.animate-fade-in        { animation: fadeIn       0.45s cubic-bezier(0.16,1,0.3,1) both; }
-.animate-fade-in-scale  { animation: fadeInScale  0.4s  cubic-bezier(0.16,1,0.3,1) both; }
-.animate-pulse-slow     { animation: pulse        1.4s  ease-in-out infinite; }
-.animate-glow           { animation: glow         3s    ease-in-out infinite; }
-.animate-float          { animation: float        3s    ease-in-out infinite; }
-.animate-breathe        { animation: breathe      2s    ease-in-out infinite; }
-.animate-spin-slow      { animation: spin         0.7s  linear infinite; }
-.animate-bar-fill       { animation: barFill      1s    cubic-bezier(0.16,1,0.3,1) both; }
-.animate-shimmer        { animation: shimmer      2s    linear infinite; }
+/* ── Custom utility classes (inside @layer utilities so they compose with Tailwind) ── */
+@layer utilities {
+  .animate-fade-in        { animation: fadeIn       0.45s cubic-bezier(0.16,1,0.3,1) both; }
+  .animate-fade-in-scale  { animation: fadeInScale  0.4s  cubic-bezier(0.16,1,0.3,1) both; }
+  .animate-pulse-slow     { animation: pulse        1.4s  ease-in-out infinite; }
+  .animate-glow           { animation: glow         3s    ease-in-out infinite; }
+  .animate-float          { animation: float        3s    ease-in-out infinite; }
+  .animate-breathe        { animation: breathe      2s    ease-in-out infinite; }
+  .animate-spin-slow      { animation: spin         0.7s  linear infinite; }
+  .animate-bar-fill       { animation: barFill      1s    cubic-bezier(0.16,1,0.3,1) both; }
+  .animate-shimmer        { animation: shimmer      2s    linear infinite; }
 
-.delay-1 { animation-delay: 0.06s; }
-.delay-2 { animation-delay: 0.12s; }
-.delay-3 { animation-delay: 0.18s; }
-.delay-4 { animation-delay: 0.24s; }
-.delay-5 { animation-delay: 0.30s; }
+  .delay-1  { animation-delay: 0.06s; }
+  .delay-2  { animation-delay: 0.12s; }
+  .delay-3  { animation-delay: 0.18s; }
+  .delay-4  { animation-delay: 0.24s; }
+  .delay-5  { animation-delay: 0.30s; }
+  .delay-6  { animation-delay: 0.36s; }
+  .delay-7  { animation-delay: 0.42s; }
+  .delay-8  { animation-delay: 0.48s; }
+  .delay-9  { animation-delay: 0.54s; }
+  .delay-10 { animation-delay: 0.60s; }
+}
 
-/* ── Shared design helpers ──────────────── */
-.card-glow:hover {
-  box-shadow: 0 0 0 1px rgba(124,111,255,0.25), 0 4px 20px rgba(124,111,255,0.15);
-  border-color: rgba(124,111,255,0.3) !important;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #7C6FFF, #6358E0);
-  box-shadow: 0 2px 12px rgba(124,111,255,0.3);
-}
-.btn-primary:hover {
-  box-shadow: 0 4px 20px rgba(124,111,255,0.45);
-  transform: translateY(-1px);
-}
-.glass {
-  background: rgba(13,13,26,0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(124,111,255,0.1);
+/* ── Shared design helpers (inside @layer components) ── */
+@layer components {
+  .card-glow:hover {
+    box-shadow: 0 0 0 1px rgba(124,111,255,0.25), 0 4px 20px rgba(124,111,255,0.15);
+    border-color: rgba(124,111,255,0.3) !important;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #7C6FFF, #6358E0);
+    box-shadow: 0 2px 12px rgba(124,111,255,0.3);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 4px 20px rgba(124,111,255,0.45);
+    transform: translateY(-1px);
+  }
+  .input-field {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    background: var(--color-layer);
+    border: 1px solid var(--color-edge);
+    border-radius: 0.5rem;
+    color: var(--color-ink);
+    font-size: 0.8125rem;
+    outline: none;
+  }
+  .glass {
+    background: rgba(13,13,26,0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(124,111,255,0.1);
+  }
 }

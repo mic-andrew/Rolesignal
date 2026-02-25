@@ -1,4 +1,4 @@
-import { RiFileCopyLine, RiTimeLine } from "react-icons/ri";
+import { RiFileCopyLine, RiTimeLine, RiDeleteBinLine } from "react-icons/ri";
 import type { InterviewResponse } from "../../api/interviews";
 import { Avatar } from "../ui/Avatar";
 import { Badge } from "../ui/Badge";
@@ -8,10 +8,11 @@ import { useUIStore } from "../../stores/uiStore";
 interface InterviewCardProps {
   interview: InterviewResponse;
   index: number;
+  onDelete?: (id: string) => void;
 }
 
 function formatDuration(seconds: number | null): string {
-  if (!seconds) return "—";
+  if (!seconds) return "\u2014";
   const mins = Math.floor(seconds / 60);
   return `${mins}m`;
 }
@@ -22,14 +23,19 @@ function makeInitials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-export function InterviewCard({ interview, index }: InterviewCardProps) {
+export function InterviewCard({ interview, index, onDelete }: InterviewCardProps) {
   const showToast = useUIStore((s) => s.showToast);
-  const { candidateName, roleTitle, status, durationSeconds, link, completedAt } = interview;
+  const { id, candidateName, roleTitle, status, durationSeconds, link, completedAt } = interview;
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(link);
     showToast("Interview link copied", "success");
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete?.(id);
   };
 
   const statusLabel =
@@ -39,49 +45,53 @@ export function InterviewCard({ interview, index }: InterviewCardProps) {
 
   return (
     <Card
+      glow
       padding="p-0"
-      className={`animate-fade-in delay-${Math.min(index + 1, 5) as 1 | 2 | 3 | 4 | 5}`}
-      style={{ padding: "16px 18px" }}
+      className={`animate-fade-in delay-${Math.min(index + 1, 10)} px-6 py-5`}
     >
-      <div className="flex items-center" style={{ gap: 12, marginBottom: 12 }}>
-        <Avatar initials={makeInitials(candidateName)} size={36} color="#7C6FFF" />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <div className="flex items-center gap-3.5 mb-4">
+        <Avatar initials={makeInitials(candidateName)} size={40} color="#7C6FFF" />
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
             {candidateName}
           </div>
-          <div style={{ fontSize: 12, color: "var(--color-ink3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div className="text-[13px] text-ink3 mt-0.5 overflow-hidden text-ellipsis whitespace-nowrap">
             {roleTitle}
           </div>
         </div>
         <Badge variant={status as "pending" | "in_progress" | "completed"} />
       </div>
 
-      <div className="flex items-center justify-between" style={{ marginTop: 4 }}>
-        <div className="flex items-center" style={{ gap: 6 }}>
-          <RiTimeLine size={13} style={{ color: "var(--color-ink3)" }} />
-          <span style={{ fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}>
+      <div className="flex items-center justify-between pt-3 border-t border-edge">
+        <div className="flex items-center gap-2">
+          <RiTimeLine size={14} className="text-ink3" />
+          <span className="text-[13px] text-ink3 font-medium">
             {statusLabel}
           </span>
           {completedAt && (
-            <span style={{ fontSize: 11, color: "var(--color-ink3)", fontFamily: "var(--font-family-mono)", marginLeft: 4 }}>
+            <span className="text-xs text-ink3 font-mono ml-1">
               {new Date(completedAt).toLocaleDateString()}
             </span>
           )}
         </div>
-        <button
-          onClick={handleCopyLink}
-          title="Copy interview link"
-          className="flex items-center justify-center"
-          style={{
-            width: 28, height: 28, borderRadius: 6,
-            background: "transparent", border: "none", cursor: "pointer",
-            color: "var(--color-ink3)", transition: "color 0.15s, background 0.15s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-brand)"; e.currentTarget.style.background = "var(--acg)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-ink3)"; e.currentTarget.style.background = "transparent"; }}
-        >
-          <RiFileCopyLine size={14} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleCopyLink}
+            title="Copy interview link"
+            className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent border-none cursor-pointer text-ink3 transition-colors duration-150 hover:text-brand hover:bg-(--acg)"
+          >
+            <RiFileCopyLine size={15} />
+          </button>
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              title="Delete interview"
+              className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent border-none cursor-pointer text-ink3 transition-colors duration-150 hover:text-danger hover:bg-(--acg)"
+            >
+              <RiDeleteBinLine size={15} />
+            </button>
+          )}
+        </div>
       </div>
     </Card>
   );

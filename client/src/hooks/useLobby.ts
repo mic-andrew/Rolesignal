@@ -17,7 +17,23 @@ export function useLobby() {
 
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [micOn, setMicOn] = useState(true);
-  const [camOn, setCamOn] = useState(true);
+  const [micPermission, setMicPermission] = useState<
+    "granted" | "denied" | "prompt"
+  >("prompt");
+
+  // Request mic permission on mount
+  useEffect(() => {
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        setMicPermission("granted");
+        // Stop the stream immediately — we just needed permission
+        stream.getTracks().forEach((t) => t.stop());
+      })
+      .catch(() => {
+        setMicPermission("denied");
+      });
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -38,10 +54,9 @@ export function useLobby() {
     isLoading: query.isLoading,
     error: query.error,
     countdown,
-    canJoin: countdown === 0,
+    canJoin: countdown === 0 && micPermission === "granted",
     micOn,
-    camOn,
+    micPermission,
     toggleMic: () => setMicOn((v) => !v),
-    toggleCam: () => setCamOn((v) => !v),
   };
 }
