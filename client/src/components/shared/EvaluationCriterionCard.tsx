@@ -34,7 +34,7 @@ export function EvaluationCriterionCard({
       glow
       padding="p-0"
       onClick={onToggle}
-      className={`px-[18px] py-[14px] mb-2 animate-fade-in delay-${Math.min(index + 2, 5) as 1 | 2 | 3 | 4 | 5}`}
+      className={`px-6 py-5 mb-3 animate-fade-in delay-${Math.min(index + 2, 10)}`}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3.5">
@@ -103,7 +103,7 @@ export function EvaluationCriterionCard({
               criterion.riskFlags.map((flag, idx) => (
                 <span
                   key={idx}
-                  className="py-[5px] px-3 rounded-md text-xs font-semibold text-danger bg-[rgba(234,67,53,0.08)]"
+                  className="py-[5px] px-3 rounded-md text-xs font-semibold text-danger bg-(--rdg)"
                 >
                   {flag}
                 </span>

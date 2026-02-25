@@ -13,7 +13,7 @@ function barColor(v: number): string {
 export function SkillBar({ label, value, delay = 0 }: SkillBarProps) {
   const color = barColor(value);
   return (
-    <div className="mb-3.5">
+    <div className="mb-3 last:mb-0">
       <div className="flex justify-between mb-1">
         <span className="text-xs font-medium text-ink2">{label}</span>
         <span className="text-xs font-bold font-mono" style={{ color }}>{value}</span>

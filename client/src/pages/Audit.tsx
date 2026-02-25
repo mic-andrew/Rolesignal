@@ -22,7 +22,7 @@ export default function Audit() {
   const { events, isLoading, filter, setFilter, selectedEvent, setSelectedEventId, reasoningSteps } = useAudit();
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="flex items-center gap-2 animate-fade-in">
         {FILTER_OPTS.map(({ label, value }) => (
           <Button
@@ -40,7 +40,7 @@ export default function Audit() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-[1fr_360px] gap-5">
+      <div className="grid grid-cols-[1fr_380px] gap-8">
         <div className="space-y-2.5">
           {isLoading ? (
             <LoadingSkeleton rows={5} />
@@ -54,7 +54,7 @@ export default function Audit() {
                   glow
                   padding="p-0"
                   onClick={() => setSelectedEventId(ev.id)}
-                  className={`px-5 py-4 animate-fade-in delay-${Math.min(i + 1, 5) as 1|2|3|4|5} ${isSelected ? "border-[rgba(124,111,255,0.3)] shadow-(--shac)" : ""}`}
+                  className={`px-5 py-4 animate-fade-in delay-${Math.min(i + 1, 10)} ${isSelected ? "border-[rgba(124,111,255,0.3)] shadow-(--shac)" : ""}`}
                 >
                   <div className="flex gap-3">
                     <span className="text-lg leading-5 shrink-0">{ev.emoji}</span>

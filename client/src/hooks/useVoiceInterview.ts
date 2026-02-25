@@ -164,7 +164,11 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
 
       // 4. Capture mic and add to peer connection
       const localStream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
       localStreamRef.current = localStream;
       localStream.getTracks().forEach((track) => {
@@ -181,6 +185,11 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
         } catch {
           // Non-JSON event
         }
+      };
+
+      // Trigger AI to speak first once the data channel opens
+      dc.onopen = () => {
+        dc.send(JSON.stringify({ type: "response.create" }));
       };
 
       // 6. SDP offer

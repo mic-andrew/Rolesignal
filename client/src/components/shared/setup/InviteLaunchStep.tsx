@@ -20,8 +20,7 @@ interface InviteLaunchStepProps {
   onLaunch: () => void;
 }
 
-const INPUT_CLS =
-  "w-full px-3.5 py-[11px] bg-[var(--color-canvas2)] border border-[var(--color-edge)] rounded-lg text-[var(--color-ink)] text-[13px] outline-none flex-1";
+const INPUT_CLS = "input-field flex-1";
 
 export function InviteLaunchStep({
   candidates,
@@ -44,11 +43,11 @@ export function InviteLaunchStep({
 
   return (
     <div>
-      <Card padding="p-0" className="p-[30px] mb-5">
-        <h3 className="text-[17px] font-bold text-[var(--color-ink)] mb-1.5">
+      <Card padding="p-0" className="p-8 mb-5">
+        <h3 className="text-[17px] font-bold text-ink mb-1.5">
           Invite Candidates
         </h3>
-        <p className="text-[13px] text-[var(--color-ink3)] mb-5">
+        <p className="text-[13px] text-ink3 mb-5">
           Add candidates who will each receive a unique interview link via email.
         </p>
         <div className="flex gap-2.5 mb-4">
@@ -75,9 +74,9 @@ export function InviteLaunchStep({
           <CandidateList candidates={candidates} onRemove={onRemoveCandidate} />
         )}
         {candidates.length > 0 && (
-          <div className="flex items-center gap-2.5 mt-3.5 px-4 py-3 bg-[var(--acg)] rounded-[10px]">
-            <RiGroupLine size={16} className="text-[var(--color-brand)]" />
-            <span className="text-[13px] font-semibold text-[var(--color-brand)]">
+          <div className="flex items-center gap-2.5 mt-3.5 px-4 py-3 bg-(--acg) rounded-[10px]">
+            <RiGroupLine size={16} className="text-brand" />
+            <span className="text-[13px] font-semibold text-brand">
               {candidates.length} candidate{candidates.length !== 1 ? "s" : ""} ready
             </span>
           </div>
@@ -99,21 +98,21 @@ export function InviteLaunchStep({
 
 function CandidateList({ candidates, onRemove }: { candidates: CandidateEntry[]; onRemove: (email: string) => void }) {
   return (
-    <div className="rounded-lg border border-[var(--color-edge)] overflow-hidden">
+    <div className="rounded-lg border border-edge overflow-hidden">
       {candidates.map((c, i) => (
         <div
           key={c.email}
           className={`flex items-center justify-between px-3.5 py-2.5 ${
-            i % 2 === 0 ? "bg-[var(--color-canvas2)]" : "bg-transparent"
-          } ${i < candidates.length - 1 ? "border-b border-[var(--color-edge)]" : ""}`}
+            i % 2 === 0 ? "bg-canvas2" : "bg-transparent"
+          } ${i < candidates.length - 1 ? "border-b border-edge" : ""}`}
         >
           <div>
-            <span className="text-[13px] font-semibold text-[var(--color-ink)]">{c.name}</span>
-            <span className="text-xs text-[var(--color-ink3)] ml-2.5">{c.email}</span>
+            <span className="text-[13px] font-semibold text-ink">{c.name}</span>
+            <span className="text-xs text-ink3 ml-2.5">{c.email}</span>
           </div>
           <button
             onClick={() => onRemove(c.email)}
-            className="cursor-pointer border-0 bg-transparent text-[var(--color-ink3)] p-1"
+            className="cursor-pointer border-0 bg-transparent text-ink3 p-1"
           >
             <RiDeleteBinLine size={14} />
           </button>
@@ -141,20 +140,20 @@ function LaunchSummary({ roleTitle, config, criteriaCount, candidateCount, launc
 
   return (
     <Card padding="p-0" className="p-7 text-center">
-      <h3 className="text-lg font-extrabold text-[var(--color-ink)] mb-1.5">Ready to Launch</h3>
-      <p className="text-[13px] text-[var(--color-ink3)] mb-5">
+      <h3 className="text-lg font-extrabold text-ink mb-1.5">Ready to Launch</h3>
+      <p className="text-[13px] text-ink3 mb-5">
         {roleTitle || "Untitled Role"} &mdash; {config.duration}min{" "}
         {config.tone.toLowerCase()} interview
         {candidateCount > 0 && ` for ${candidateCount} candidate${candidateCount !== 1 ? "s" : ""}`}.
       </p>
-      <div className="flex justify-center gap-2.5 mb-[22px]">
+      <div className="flex justify-center gap-2.5 mb-6">
         {stats.map((s) => (
           <div
             key={s.label}
-            className="px-[18px] py-3 bg-[var(--color-canvas2)] rounded-[10px] border border-[var(--color-edge)] min-w-[70px]"
+            className="px-[18px] py-3 bg-canvas2 rounded-[10px] border border-edge min-w-[70px]"
           >
-            <div className="text-lg font-extrabold font-mono text-[var(--color-brand)]">{s.value}</div>
-            <div className="text-[11px] text-[var(--color-ink3)] font-medium mt-0.5">{s.label}</div>
+            <div className="text-lg font-extrabold font-mono text-brand">{s.value}</div>
+            <div className="text-[11px] text-ink3 font-medium mt-0.5">{s.label}</div>
           </div>
         ))}
       </div>

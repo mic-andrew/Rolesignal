@@ -19,7 +19,6 @@ from app.schemas.roles import (
     RoleUpdateRequest,
 )
 from app.services import role_service
-from app.services.criteria_parser import extract_criteria
 from app.services.file_parser import extract_text
 from app.services import criteria_generator
 
@@ -137,10 +136,7 @@ async def extract_criteria_endpoint(
     payload: ExtractCriteriaRequest,
     _user: User = Depends(get_current_user),
 ) -> ExtractCriteriaResponse:
-    """Extract structured evaluation criteria from text using LLM.
-
-    Falls back to heuristic parsing if the LLM is unavailable.
-    """
+    """Extract structured evaluation criteria from text using LLM."""
     try:
         raw = await criteria_generator.generate_criteria_from_text(
             payload.text
@@ -188,15 +184,10 @@ async def extract_criteria_endpoint(
                 "Check server configuration.",
             ) from exc
 
-        logger.exception(
-            "llm_criteria_extraction_failed, falling back to heuristic"
-        )
-        parsed = extract_criteria(payload.text)
-        criteria = [
-            CriterionParsed(
-                **c,
-                sub_criteria=[],
-            )
-            for c in parsed
-        ]
+        logger.exception("llm_criteria_extraction_failed")
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to generate criteria. "
+            "Please try again or enter criteria manually.",
+        ) from exc
     return ExtractCriteriaResponse(criteria=criteria)

@@ -42,7 +42,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold border-none transition-all duration-200 outline-none tracking-tight shrink-0 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer opacity-100"} ${variant === "primary" ? "btn-primary" : ""} ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]} ${full ? "w-full" : ""} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 outline-none tracking-tight shrink-0 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer opacity-100"} ${variant === "primary" ? "btn-primary" : ""} ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]} ${full ? "w-full" : ""} ${className}`}
     >
       {children}
     </button>

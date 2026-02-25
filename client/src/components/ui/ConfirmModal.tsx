@@ -44,7 +44,7 @@ export function ConfirmModal({
             variant="primary"
             size="sm"
             onClick={onConfirm}
-            className={variant === "danger" ? "bg-[#EF4444]!" : ""}
+            className={variant === "danger" ? "bg-danger!" : ""}
           >
             {confirmLabel}
           </Button>

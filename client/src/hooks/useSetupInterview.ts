@@ -1,10 +1,11 @@
 import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { interviewsApi } from "../api/interviews";
 import { rolesApi } from "../api/roles";
+import { criteriaLibraryApi } from "../api/criteriaLibrary";
 import { useUIStore } from "../stores/uiStore";
-import type { Criterion, InterviewConfig, RoleSeniority } from "../types";
+import type { Criterion, CriteriaTemplate, InterviewConfig, RoleSeniority } from "../types";
 
 const STEP_COUNT = 5;
 
@@ -38,6 +39,13 @@ export function useSetupInterview() {
   const [candidates, setCandidates] = useState<CandidateEntry[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isParsing, setIsParsing] = useState(false);
+
+  // --- Templates from library ---
+  const templatesQuery = useQuery({
+    queryKey: ["criteria-library"],
+    queryFn: () => criteriaLibraryApi.list(),
+    staleTime: 30_000,
+  });
 
   // --- Step validation ---
   const validateStep = useCallback(
@@ -138,6 +146,29 @@ export function useSetupInterview() {
         })),
       );
       showToast(`Extracted ${parsed.length} criteria`, "success");
+
+      // Auto-save to library for reuse
+      if (roleTitle.trim()) {
+        try {
+          await criteriaLibraryApi.create({
+            name: `${roleTitle.trim()} Criteria`,
+            description: `Auto-generated from job description`,
+            criteria: parsed.map((c) => ({
+              name: c.name,
+              description: c.description,
+              weight: c.weight,
+              sub_criteria: (c.subCriteria ?? []).map((sc) => ({
+                name: sc.name,
+                description: sc.description,
+                weight: sc.weight,
+              })),
+            })),
+          });
+          queryClient.invalidateQueries({ queryKey: ["criteria-library"] });
+        } catch {
+          // Non-critical — don't block the flow
+        }
+      }
     } catch (err: unknown) {
       const detail =
         err != null &&
@@ -375,6 +406,8 @@ export function useSetupInterview() {
     updateSubCriterion,
     removeSubCriterion,
     importFromTemplate,
+    templates: templatesQuery.data ?? [],
+    isLoadingTemplates: templatesQuery.isLoading,
     isParsing,
     extractCriteria,
     config,

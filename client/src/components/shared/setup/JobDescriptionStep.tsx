@@ -3,8 +3,7 @@ import { RiUpload2Line } from "react-icons/ri";
 import { Card } from "../../ui/Card";
 import { Button } from "../../ui/Button";
 
-const INPUT_CLS =
-  "w-full px-3.5 py-[11px] bg-[var(--color-canvas2)] border border-[var(--color-edge)] rounded-lg text-[var(--color-ink)] text-[13px] outline-none";
+const INPUT_CLS = "input-field";
 
 interface JobDescriptionStepProps {
   jobDescription: string;
@@ -22,11 +21,11 @@ export function JobDescriptionStep({
   onFileUpload,
 }: JobDescriptionStepProps) {
   return (
-    <Card padding="p-0" className="p-[30px]">
-      <h3 className="text-[17px] font-bold text-[var(--color-ink)] mb-1.5">
+    <Card padding="p-0" className="p-8">
+      <h3 className="text-[17px] font-bold text-ink mb-1.5">
         Job Description
       </h3>
-      <p className="text-[13px] text-[var(--color-ink3)] mb-[22px]">
+      <p className="text-[13px] text-ink3 mb-6">
         {jobDescription
           ? "Edit the description below, or clear it to upload a new file."
           : "Upload a file or paste the JD. We'll extract evaluation criteria from it."}
@@ -49,7 +48,7 @@ export function JobDescriptionStep({
       {!jobDescription && (
         <>
           <div
-            className={`text-center cursor-pointer transition-all border-2 border-dashed border-[var(--color-edge2)] rounded-2xl p-9 bg-[var(--color-canvas2)] mb-5 hover:border-[var(--color-brand)] ${isUploading ? "opacity-60" : ""}`}
+            className={`text-center cursor-pointer transition-all border-2 border-dashed border-edge2 rounded-2xl p-9 bg-canvas2 mb-5 hover:border-brand ${isUploading ? "opacity-60" : ""}`}
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => {
               e.preventDefault();
@@ -67,22 +66,22 @@ export function JobDescriptionStep({
           >
             <RiUpload2Line
               size={20}
-              className="text-[var(--color-brand)] opacity-80 mb-2.5 mx-auto"
+              className="text-brand opacity-80 mb-2.5 mx-auto"
             />
-            <div className="text-sm font-semibold text-[var(--color-ink)]">
+            <div className="text-sm font-semibold text-ink">
               {isUploading ? "Extracting text..." : "Drop file here or click to upload"}
             </div>
-            <div className="text-xs text-[var(--color-ink3)] mt-1">
+            <div className="text-xs text-ink3 mt-1">
               PDF, DOCX, or TXT
             </div>
           </div>
 
           <div className="flex items-center gap-3.5 mb-4">
-            <div className="flex-1 h-px bg-[var(--color-edge)]" />
-            <span className="text-[11px] text-[var(--color-ink3)] font-medium">
+            <div className="flex-1 h-px bg-edge" />
+            <span className="text-[11px] text-ink3 font-medium">
               or paste text
             </span>
-            <div className="flex-1 h-px bg-[var(--color-edge)]" />
+            <div className="flex-1 h-px bg-edge" />
           </div>
         </>
       )}
@@ -103,7 +102,7 @@ export function JobDescriptionStep({
           >
             Clear &amp; Re-upload
           </Button>
-          <span className="text-xs text-[var(--color-ink3)]">
+          <span className="text-xs text-ink3">
             {jobDescription.length.toLocaleString()} characters
           </span>
         </div>

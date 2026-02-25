@@ -13,7 +13,7 @@ interface SendInterviewModalProps {
   onClose: () => void;
 }
 
-const FIELD_CLASS = "w-full px-3.5 py-[11px] bg-layer border border-edge rounded-lg text-ink text-[13px] outline-none";
+const INPUT_CLS = "input-field";
 
 const STEP_LABELS = ["Candidate", "Interview Config", "Share Link"];
 
@@ -125,7 +125,7 @@ function StepCandidate({ hook }: { hook: ReturnType<typeof useSendInterview> }) 
       <div>
         <label className="block text-xs font-semibold mb-1.5 text-ink2">Role</label>
         <select
-          className={`${FIELD_CLASS} appearance-none`}
+          className={`${INPUT_CLS} appearance-none`}
           value={hook.roleId}
           onChange={(e) => { hook.setRoleId(e.target.value); hook.setExistingCandidateId(""); }}
         >
@@ -152,7 +152,7 @@ function StepCandidate({ hook }: { hook: ReturnType<typeof useSendInterview> }) 
         <div>
           <label className="block text-xs font-semibold mb-1.5 text-ink2">Candidate</label>
           <select
-            className={`${FIELD_CLASS} appearance-none`}
+            className={`${INPUT_CLS} appearance-none`}
             value={hook.existingCandidateId}
             onChange={(e) => hook.setExistingCandidateId(e.target.value)}
           >
@@ -166,11 +166,11 @@ function StepCandidate({ hook }: { hook: ReturnType<typeof useSendInterview> }) 
         <>
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-ink2">Candidate Name</label>
-            <input className={FIELD_CLASS} placeholder="Jane Smith" value={hook.candidateName} onChange={(e) => hook.setCandidateName(e.target.value)} />
+            <input className={INPUT_CLS} placeholder="Jane Smith" value={hook.candidateName} onChange={(e) => hook.setCandidateName(e.target.value)} />
           </div>
           <div>
             <label className="block text-xs font-semibold mb-1.5 text-ink2">Candidate Email</label>
-            <input type="email" className={FIELD_CLASS} placeholder="jane@example.com" value={hook.candidateEmail} onChange={(e) => hook.setCandidateEmail(e.target.value)} />
+            <input type="email" className={INPUT_CLS} placeholder="jane@example.com" value={hook.candidateEmail} onChange={(e) => hook.setCandidateEmail(e.target.value)} />
           </div>
         </>
       )}
@@ -184,7 +184,7 @@ function StepConfig({ hook }: { hook: ReturnType<typeof useSendInterview> }) {
       <div>
         <label className="block text-xs font-semibold mb-1.5 text-ink2">Duration</label>
         <select
-          className={`${FIELD_CLASS} appearance-none`}
+          className={`${INPUT_CLS} appearance-none`}
           value={hook.duration}
           onChange={(e) => hook.setDuration(Number(e.target.value))}
         >
@@ -196,7 +196,7 @@ function StepConfig({ hook }: { hook: ReturnType<typeof useSendInterview> }) {
       <div>
         <label className="block text-xs font-semibold mb-1.5 text-ink2">Interview Tone</label>
         <select
-          className={`${FIELD_CLASS} appearance-none`}
+          className={`${INPUT_CLS} appearance-none`}
           value={hook.tone}
           onChange={(e) => hook.setTone(e.target.value as AITone)}
         >

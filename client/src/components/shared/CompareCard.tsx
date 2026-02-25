@@ -20,9 +20,9 @@ export function CompareCard({ candidate }: CompareCardProps) {
   const { name, initials, score, color, skills } = candidate;
 
   return (
-    <Card padding="p-0" className="flex-1 px-5 py-4 min-w-0">
-      <div className="flex items-center gap-2.5 mb-4">
-        <Avatar initials={initials} size={36} color={color} />
+    <Card padding="p-0" className="flex-1 px-6 py-5 min-w-0">
+      <div className="flex items-center gap-3 mb-5">
+        <Avatar initials={initials} size={40} color={color} />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
             {name}
@@ -31,7 +31,7 @@ export function CompareCard({ candidate }: CompareCardProps) {
         <ScoreRing value={score} size={42} strokeWidth={2.5} />
       </div>
 
-      <div className="h-px bg-edge mb-4" />
+      <div className="h-px bg-edge mb-5" />
 
       {Object.entries(skills).map(([key, val], j) => (
         <SkillBar

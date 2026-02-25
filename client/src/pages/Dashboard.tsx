@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { RiAddLine, RiBriefcaseLine } from "react-icons/ri";
 import { useDashboard } from "../hooks/useDashboard";
 import { Card } from "../components/ui/Card";
+import { StatCard } from "../components/ui/StatCard";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
@@ -40,43 +41,37 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-4 gap-4">
+    <div className="space-y-8">
+      <div className="grid grid-cols-4 gap-5">
         {METRIC_CONFIG.map(({ key, label, color }, i) => (
-          <Card
+          <StatCard
             key={key}
-            padding="p-0"
-            className={`animate-fade-in delay-${(i + 1) as 1|2|3|4} px-5 py-[18px] border-l-[3px]`}
-            style={{ borderLeftColor: color }}
-          >
-            <div className="text-[11px] font-semibold uppercase tracking-wide mb-2.5 text-ink3">
-              {label}
-            </div>
-            <span className="text-[30px] font-extrabold tracking-[-0.03em] text-ink">
-              {metrics?.[key] ?? 0}
-            </span>
-          </Card>
+            label={label}
+            value={metrics?.[key] ?? 0}
+            accentColor={color}
+            animationDelay={i + 1}
+          />
         ))}
       </div>
 
-      <div className="grid gap-6 grid-cols-[1fr_340px]">
-        <div className="space-y-6">
+      <div className="grid gap-8 grid-cols-[1fr_400px]">
+        <div className="space-y-8">
           <div>
             <div className="flex items-center justify-between animate-fade-in delay-4 mb-4">
-              <h2 className="text-[15px] font-bold text-ink">Interview Pipeline</h2>
+              <h2 className="text-base font-bold text-ink">Interview Pipeline</h2>
               <Button variant="ghost" size="sm" onClick={() => navigate("/setup")}>
                 <RiAddLine size={14} />New Interview
               </Button>
             </div>
 
-            <div className="animate-fade-in delay-4 grid grid-cols-5 gap-2.5">
+            <div className="animate-fade-in delay-4 grid grid-cols-5 gap-4">
               {pipeline.map((col) => (
-                <Card key={col.stage} padding="p-0" className="text-center p-4">
-                  <div className="text-[10px] font-bold uppercase tracking-wider mb-2 text-ink3">
+                <Card key={col.stage} padding="p-0" className="text-center px-4 py-6">
+                  <div className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-ink3">
                     {col.label}
                   </div>
                   <div
-                    className="text-[26px] font-extrabold mb-2.5 tracking-[-0.02em]"
+                    className="text-2xl font-extrabold mb-3 tracking-tight"
                     style={{ color: col.color }}
                   >
                     {col.count}
@@ -97,7 +92,7 @@ export default function Dashboard() {
           </div>
 
           <div className="animate-fade-in delay-5">
-            <h2 className="text-[15px] font-bold mb-4 text-ink">Interview Roles</h2>
+            <h2 className="text-base font-bold mb-4 text-ink">Interview Roles</h2>
             {roles.length === 0 ? (
               <EmptyState
                 title="No interview roles yet"
@@ -111,8 +106,8 @@ export default function Dashboard() {
                     key={role.id}
                     glow
                     padding="p-0"
-                    onClick={() => navigate("/rankings")}
-                    className="flex items-center justify-between px-5 py-4"
+                    onClick={() => navigate("/interviews")}
+                    className="flex items-center justify-between px-6 py-5"
                   >
                     <div className="flex items-center gap-3.5">
                       <div className="flex items-center justify-center text-brand w-[38px] h-[38px] rounded-[10px] bg-(--acg)">
@@ -144,7 +139,7 @@ export default function Dashboard() {
         </div>
 
         <div className="animate-fade-in delay-5">
-          <h2 className="text-[15px] font-bold mb-4 text-ink">Activity</h2>
+          <h2 className="text-base font-bold mb-4 text-ink">Activity</h2>
           {activity.length === 0 ? (
             <Card padding="p-0" className="px-5 py-6 text-center">
               <p className="text-xs text-ink3">No activity yet. Create an interview to get started.</p>

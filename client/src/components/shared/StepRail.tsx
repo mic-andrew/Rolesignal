@@ -21,10 +21,10 @@ export function StepRail({ steps, current, onStepClick }: StepRailProps) {
             <div
               className={`flex items-center justify-center w-[30px] h-[30px] rounded-full text-xs font-bold transition-all duration-300 ${
                 i < current
-                  ? "bg-[var(--color-success)] text-white"
+                  ? "bg-success text-white"
                   : i === current
-                    ? "bg-gradient-to-br from-[var(--color-brand)] to-[#6358E0] text-white shadow-[0_0_12px_rgba(124,111,255,0.4)]"
-                    : "bg-[var(--color-layer2)] text-[var(--color-ink3)]"
+                    ? "bg-linear-to-br from-brand to-[#6358E0] text-white shadow-[0_0_12px_rgba(124,111,255,0.4)]"
+                    : "bg-layer2 text-ink3"
               }`}
             >
               {i < current ? <RiCheckLine size={12} /> : i + 1}
@@ -32,9 +32,7 @@ export function StepRail({ steps, current, onStepClick }: StepRailProps) {
 
             <span
               className={`whitespace-nowrap text-xs transition-all duration-200 ${
-                i === current
-                  ? "font-bold text-[var(--color-ink)]"
-                  : "font-medium text-[var(--color-ink3)]"
+                i === current ? "font-bold text-ink" : "font-medium text-ink3"
               }`}
             >
               {label}
@@ -44,9 +42,7 @@ export function StepRail({ steps, current, onStepClick }: StepRailProps) {
           {i < steps.length - 1 && (
             <div
               className={`flex-1 h-0.5 mx-3.5 rounded-sm transition-colors duration-400 ${
-                i < current
-                  ? "bg-[var(--color-success)]"
-                  : "bg-[var(--color-edge)]"
+                i < current ? "bg-success" : "bg-edge"
               }`}
             />
           )}

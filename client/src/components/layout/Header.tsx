@@ -7,13 +7,13 @@ interface HeaderProps {
 export function Header({ title }: HeaderProps) {
   return (
     <header
-      className="sticky top-0 z-20 flex items-center justify-between shrink-0 h-16 px-6 border-b border-edge bg-canvas/95 backdrop-blur-md"
+      className="sticky top-0 z-20 flex items-center justify-between shrink-0 h-14 px-8 border-b border-edge bg-canvas/95 backdrop-blur-md"
     >
       <h1 className="text-xl font-extrabold tracking-[-0.03em] text-ink">{title}</h1>
 
       <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 cursor-pointer py-[7px] px-4 bg-layer border border-edge rounded-lg text-xs text-ink3 font-medium"
+          className="flex items-center gap-2 cursor-pointer py-2 px-4 bg-layer border border-edge rounded-lg text-xs text-ink3 font-medium"
         >
           <RiSearchLine size={16} />
           <span>Search...</span>

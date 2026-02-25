@@ -12,7 +12,7 @@ interface AddCandidateModalProps {
   defaultRoleId?: string;
 }
 
-const FIELD_CLASS = "w-full px-3.5 py-[11px] bg-layer border border-edge rounded-lg text-ink text-[13px] outline-none";
+const INPUT_CLS = "input-field";
 
 export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalProps) {
   const queryClient = useQueryClient();
@@ -69,16 +69,16 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
           <div className="flex flex-col gap-3.5">
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-ink2">Name</label>
-              <input className={FIELD_CLASS} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input className={INPUT_CLS} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-ink2">Email</label>
-              <input type="email" className={FIELD_CLASS} placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input type="email" className={INPUT_CLS} placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1.5 text-ink2">Role</label>
               <select
-                className={`${FIELD_CLASS} appearance-none`}
+                className={`${INPUT_CLS} appearance-none`}
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
                 required

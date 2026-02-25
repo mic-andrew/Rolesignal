@@ -5,6 +5,7 @@ import {
   RiArrowRightSLine,
 } from "react-icons/ri";
 import { useEvaluation } from "../hooks/useEvaluation";
+import { formatDate } from "../utils/formatDate";
 import { CriteriaChart } from "../components/shared/CriteriaChart";
 import { EvaluationCriterionCard } from "../components/shared/EvaluationCriterionCard";
 import { TranscriptPanel } from "../components/shared/TranscriptPanel";
@@ -48,7 +49,7 @@ export default function Evaluation() {
   const { candidate, confidence, criterionScores, transcript } = evaluation;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       {role && (
         <div className="flex items-center gap-1.5 animate-fade-in">
           <span
@@ -67,7 +68,7 @@ export default function Evaluation() {
       )}
 
       <Card
-        className="flex items-center justify-between animate-fade-in px-5 py-[18px]"
+        className="flex items-center justify-between animate-fade-in px-6 py-5"
         padding="p-0"
       >
         <div className="flex items-center gap-3.5">
@@ -85,7 +86,7 @@ export default function Evaluation() {
                 {candidate.role}
               </span>
               <span className="text-xs text-ink3">
-                &middot; {candidate.date} &middot; {candidate.duration} min
+                &middot; {formatDate(candidate.date)} &middot; {candidate.duration} min
               </span>
             </div>
           </div>
@@ -140,8 +141,8 @@ export default function Evaluation() {
         </div>
       </Card>
 
-      <div className="grid grid-cols-[1fr_380px] gap-5">
-        <div className="space-y-4">
+      <div className="grid grid-cols-[1fr_400px] gap-8">
+        <div className="space-y-5">
           <Card
             padding="p-0"
             className="animate-fade-in delay-1 p-5"

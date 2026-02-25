@@ -14,8 +14,7 @@ const SUBTITLES = [
   "Add a candidate to interview",
 ];
 
-const INPUT_CLS =
-  "w-full px-3.5 py-[11px] bg-[var(--color-layer)] border border-[var(--color-edge)] rounded-lg text-[var(--color-ink)] text-[13px] outline-none";
+const INPUT_CLS = "input-field";
 
 export default function Onboarding() {
   const hook = useOnboarding();

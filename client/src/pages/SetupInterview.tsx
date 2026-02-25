@@ -41,6 +41,9 @@ export default function SetupInterview() {
     addSubCriterion,
     updateSubCriterion,
     removeSubCriterion,
+    importFromTemplate,
+    templates,
+    isLoadingTemplates,
     isParsing,
     extractCriteria,
     config,
@@ -84,8 +87,11 @@ export default function SetupInterview() {
             totalWeight={totalWeight}
             jobDescription={jobDescription}
             isParsing={isParsing}
+            templates={templates}
+            isLoadingTemplates={isLoadingTemplates}
             onExtractCriteria={extractCriteria}
             onAddCriterion={addCriterion}
+            onSelectTemplate={importFromTemplate}
             onWeightChange={updateWeight}
             onNameChange={updateCriterionName}
             onDescriptionChange={updateCriterionDescription}
@@ -115,7 +121,7 @@ export default function SetupInterview() {
       </div>
 
       {/* Nav buttons */}
-      <div className="flex justify-between max-w-[700px] mx-auto mt-[22px]">
+      <div className="flex justify-between max-w-[700px] mx-auto mt-6">
         <Button
           variant="ghost"
           onClick={prevStep}

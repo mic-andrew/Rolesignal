@@ -10,10 +10,11 @@ import SetupInterview from "./pages/SetupInterview";
 import Lobby          from "./pages/Lobby";
 import InterviewRoom  from "./pages/InterviewRoom";
 import Evaluation     from "./pages/Evaluation";
-import Rankings       from "./pages/Rankings";
+import Scorecard      from "./pages/Scorecard";
 import Candidates     from "./pages/Candidates";
 import Settings       from "./pages/Settings";
 import Audit          from "./pages/Audit";
+import InterviewDetail from "./pages/InterviewDetail";
 import CriteriaLibrary from "./pages/CriteriaLibrary";
 import ThankYou        from "./pages/ThankYou";
 
@@ -37,10 +38,11 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/dashboard"  element={<Dashboard />}      />
           <Route path="/interviews" element={<Interviews />}     />
+          <Route path="/interviews/:roleId" element={<InterviewDetail />} />
           <Route path="/setup"      element={<SetupInterview />} />
           <Route path="/candidates" element={<Candidates />}     />
           <Route path="/evaluation/:candidateId?" element={<Evaluation />} />
-          <Route path="/rankings"   element={<Rankings />}       />
+          <Route path="/scorecard"  element={<Scorecard />}       />
           <Route path="/criteria"   element={<CriteriaLibrary />} />
           <Route path="/settings"   element={<Settings />}       />
           <Route path="/audit"      element={<Audit />}          />

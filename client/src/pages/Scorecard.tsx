@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { RiEyeLine, RiDownloadLine, RiArrowRightSLine } from "react-icons/ri";
 import { useRankings } from "../hooks/useRankings";
+import { formatDate } from "../utils/formatDate";
 import { Card } from "../components/ui/Card";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
@@ -24,7 +25,7 @@ function barBgClass(score: number): string {
   return "bg-danger";
 }
 
-export default function Rankings() {
+export default function Scorecard() {
   const navigate = useNavigate();
   const {
     roles, activeRoleId, selectRole,
@@ -38,7 +39,7 @@ export default function Rankings() {
   const activeRole = roles.find((r) => r.id === activeRoleId);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="flex items-center gap-1.5 animate-fade-in">
         {roles.map((role) => {
           const isActive = role.id === activeRoleId;
@@ -130,7 +131,7 @@ export default function Rankings() {
                       <Avatar initials={c.initials} size={30} color={c.color} />
                       <div>
                         <div className="text-[13px] font-semibold text-ink">{c.name}</div>
-                        <div className="text-[11px] text-ink3">{c.date}</div>
+                        <div className="text-[11px] text-ink3">{formatDate(c.date)}</div>
                       </div>
                     </div>
                   </td>

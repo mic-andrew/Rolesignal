@@ -3,8 +3,7 @@ import type { RoleSeniority } from "../../../types";
 
 const SENIORITY_LEVELS: RoleSeniority[] = ["Junior", "Mid", "Senior", "Lead"];
 
-const INPUT_CLS =
-  "w-full px-3.5 py-[11px] bg-[var(--color-canvas2)] border border-[var(--color-edge)] rounded-lg text-[var(--color-ink)] text-[13px] outline-none";
+const INPUT_CLS = "input-field";
 
 interface RoleDetailsStepProps {
   roleTitle: string;
@@ -24,13 +23,13 @@ export function RoleDetailsStep({
   onSeniorityChange,
 }: RoleDetailsStepProps) {
   return (
-    <Card padding="p-0" className="p-[30px]">
-      <h3 className="text-[17px] font-bold text-[var(--color-ink)] mb-[22px]">
+    <Card padding="p-0" className="p-8">
+      <h3 className="text-[17px] font-bold text-ink mb-6">
         Role Details
       </h3>
       <div className="grid gap-5">
         <div>
-          <label className="block text-xs font-semibold text-[var(--color-ink2)] mb-1.5">
+          <label className="block text-xs font-semibold text-ink2 mb-1.5">
             Role Title
           </label>
           <input
@@ -42,7 +41,7 @@ export function RoleDetailsStep({
         </div>
         <div className="grid grid-cols-2 gap-5">
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink2)] mb-1.5">
+            <label className="block text-xs font-semibold text-ink2 mb-1.5">
               Department
             </label>
             <input
@@ -52,18 +51,18 @@ export function RoleDetailsStep({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-[var(--color-ink2)] mb-1.5">
+            <label className="block text-xs font-semibold text-ink2 mb-1.5">
               Seniority
             </label>
-            <div className="flex rounded-lg overflow-hidden border border-[var(--color-edge)]">
+            <div className="flex rounded-lg overflow-hidden border border-edge">
               {SENIORITY_LEVELS.map((s) => (
                 <button
                   key={s}
                   onClick={() => onSeniorityChange(s)}
                   className={`flex-1 cursor-pointer border-0 transition-all py-2.5 text-center text-xs font-semibold ${
                     seniority === s
-                      ? "bg-[var(--color-brand)] text-white"
-                      : "bg-[var(--color-layer)] text-[var(--color-ink3)]"
+                      ? "bg-brand text-white"
+                      : "bg-layer text-ink3"
                   }`}
                 >
                   {s}

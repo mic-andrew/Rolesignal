@@ -11,13 +11,13 @@ const ICON_MAP = {
 const BORDER_CLASSES = {
   success: "border-success",
   warning: "border-warn",
-  error: "border-[#EF4444]",
+  error: "border-danger",
 };
 
 const ICON_CLASSES = {
   success: "text-success",
   warning: "text-warn",
-  error: "text-[#EF4444]",
+  error: "text-danger",
 };
 
 export function Toast() {

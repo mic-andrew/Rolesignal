@@ -58,7 +58,7 @@ export function CriteriaCard({
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-[11px] text-[var(--color-ink3)]">
-            {subCriteria.length} sub
+            {(subCriteria ?? []).length} sub
           </span>
           <span className="text-[13px] font-bold font-mono text-[var(--color-ink2)]">
             {weight}%
@@ -94,7 +94,7 @@ export function CriteriaCard({
 
       {expanded && (
         <SubCriteriaEditor
-          subCriteria={subCriteria}
+          subCriteria={subCriteria ?? []}
           onAdd={() => onAddSub(id)}
           onUpdate={(subId, updates) => onUpdateSub(id, subId, updates)}
           onRemove={(subId) => onRemoveSub(id, subId)}

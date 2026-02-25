@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { RiSearchLine, RiArrowDownSLine } from "react-icons/ri";
+import { RiArrowDownSLine } from "react-icons/ri";
 import { useCandidates } from "../hooks/useCandidates";
 import { CandidateCard } from "../components/shared/CandidateCard";
+import { SearchInput } from "../components/shared/SearchInput";
 import { Button } from "../components/ui/Button";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -22,19 +23,13 @@ export default function Candidates() {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div className="flex items-center gap-2.5 animate-fade-in">
-        <div
-          className="flex items-center flex-1 gap-2 px-4 py-[9px] bg-layer border border-edge rounded-lg"
-        >
-          <RiSearchLine size={16} className="text-ink3 shrink-0" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search candidates..."
-            className="flex-1 text-[13px] text-ink bg-transparent border-none outline-none"
-          />
-        </div>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Search candidates..."
+        />
 
         {FILTERS.map(({ label, value }) => (
           <Button
@@ -83,7 +78,7 @@ export default function Candidates() {
               </button>
 
               {!isCollapsed && (
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-5">
                   {group.candidates.map((c, i) => (
                     <CandidateCard key={c.id} candidate={c} index={i} />
                   ))}

@@ -8,15 +8,15 @@ interface BadgeProps {
 }
 
 const CONFIG: Record<BadgeVariant, { bgClass: string; textClass: string; dotClass: string; text: string }> = {
-  shortlisted:  { bgClass: "bg-[var(--grg)]",  textClass: "text-success", dotClass: "bg-success", text: "Shortlisted"  },
-  reviewed:     { bgClass: "bg-[var(--acg)]",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "Reviewed"     },
-  pending:      { bgClass: "bg-[var(--amg)]",  textClass: "text-warn",    dotClass: "bg-warn",    text: "Pending"      },
-  rejected:     { bgClass: "bg-[var(--rdg)]",  textClass: "text-danger",  dotClass: "bg-danger",  text: "Rejected"     },
-  live:         { bgClass: "bg-[var(--grg)]",  textClass: "text-success", dotClass: "bg-success", text: "Live"         },
-  active:       { bgClass: "bg-[var(--acg)]",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "Active"       },
-  invited:      { bgClass: "bg-[var(--amg)]",  textClass: "text-warn",    dotClass: "bg-warn",    text: "Invited"      },
-  in_progress:  { bgClass: "bg-[var(--acg)]",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "In Progress"  },
-  completed:    { bgClass: "bg-[var(--grg)]",  textClass: "text-success", dotClass: "bg-success", text: "Completed"    },
+  shortlisted:  { bgClass: "bg-(--grg)",  textClass: "text-success", dotClass: "bg-success", text: "Shortlisted"  },
+  reviewed:     { bgClass: "bg-(--acg)",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "Reviewed"     },
+  pending:      { bgClass: "bg-(--amg)",  textClass: "text-warn",    dotClass: "bg-warn",    text: "Pending"      },
+  rejected:     { bgClass: "bg-(--rdg)",  textClass: "text-danger",  dotClass: "bg-danger",  text: "Rejected"     },
+  live:         { bgClass: "bg-(--grg)",  textClass: "text-success", dotClass: "bg-success", text: "Live"         },
+  active:       { bgClass: "bg-(--acg)",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "Active"       },
+  invited:      { bgClass: "bg-(--amg)",  textClass: "text-warn",    dotClass: "bg-warn",    text: "Invited"      },
+  in_progress:  { bgClass: "bg-(--acg)",  textClass: "text-brand2",  dotClass: "bg-brand2",  text: "In Progress"  },
+  completed:    { bgClass: "bg-(--grg)",  textClass: "text-success", dotClass: "bg-success", text: "Completed"    },
 };
 
 export function Badge({ variant, label }: BadgeProps) {
