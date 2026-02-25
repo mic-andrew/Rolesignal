@@ -1,12 +1,19 @@
 """Criterion score model."""
 
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Float, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.criterion import Criterion
+    from app.models.evaluation import Evaluation
 
 
 class CriterionScore(Base):

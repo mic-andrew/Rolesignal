@@ -45,7 +45,7 @@ export function useCandidates() {
     onError: () => showToast("Failed to remove candidate", "error"),
   });
 
-  const roles = rolesQuery.data ?? [];
+  const roles = useMemo(() => rolesQuery.data ?? [], [rolesQuery.data]);
 
   const filtered = useMemo(() => {
     const all = candidatesQuery.data ?? [];

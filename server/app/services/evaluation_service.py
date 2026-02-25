@@ -12,7 +12,6 @@ from app.models.candidate import Candidate
 from app.models.criterion_score import CriterionScore
 from app.models.evaluation import Evaluation
 from app.models.interview import Interview
-from app.models.transcript_message import TranscriptMessage
 from app.schemas.candidates import CandidateSkills
 from app.schemas.evaluations import (
     CriterionScoreResponse,

@@ -20,11 +20,15 @@ export function useLobby() {
   const [camOn, setCamOn] = useState(true);
 
   useEffect(() => {
-    if (countdown <= 0) return;
-    const timer = setInterval(
-      () => setCountdown((c) => (c <= 1 ? (clearInterval(timer), 0) : c - 1)),
-      1000,
-    );
+    const timer = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 

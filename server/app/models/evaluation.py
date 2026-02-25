@@ -1,12 +1,20 @@
 """Evaluation model."""
 
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.candidate import Candidate
+    from app.models.criterion_score import CriterionScore
+    from app.models.interview import Interview
 
 
 class Evaluation(Base):

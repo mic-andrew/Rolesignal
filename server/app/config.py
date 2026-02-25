@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
+    # Email (Resend)
+    resend_api_key: str = ""
+    resend_from_email: str = "RoleSignal <noreply@rolesignal.com>"
+    resend_template_id: str = ""
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

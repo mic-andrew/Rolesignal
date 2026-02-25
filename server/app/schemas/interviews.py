@@ -48,3 +48,47 @@ class InterviewListResponse(CamelModel):
 
 class LiveCountResponse(CamelModel):
     count: int
+
+
+# --- Launch (end-to-end create) schemas ---
+
+
+class CandidateInput(BaseModel):
+    name: str
+    email: str
+
+
+class CriterionLaunchInput(BaseModel):
+    name: str
+    description: str = ""
+    weight: int = 20
+    question_count: int = 3
+    color: str = "#7C6FFF"
+
+
+class InterviewLaunchRequest(BaseModel):
+    """Creates role + candidates + interviews in one call."""
+
+    title: str
+    department: str
+    seniority: str
+    description: str | None = None
+    criteria: list[CriterionLaunchInput] = []
+    candidates: list[CandidateInput] = []
+    config_duration: int = 30
+    config_tone: str = "Conversational"
+    config_adaptive: bool = True
+
+
+class LaunchInterviewItem(CamelModel):
+    id: str
+    candidate_name: str
+    candidate_email: str
+    link: str
+    email_sent: bool
+
+
+class InterviewLaunchResponse(CamelModel):
+    role_id: str
+    interviews: list[LaunchInterviewItem]
+    message: str

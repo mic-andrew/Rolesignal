@@ -1,5 +1,5 @@
 import client from "./client";
-import type { CandidateEvaluation, Candidate } from "../types";
+import type { CandidateEvaluation } from "../types";
 
 export interface RankingCandidate {
   id: string;

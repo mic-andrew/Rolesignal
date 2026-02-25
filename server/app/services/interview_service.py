@@ -15,15 +15,19 @@ from app.models.candidate import Candidate
 from app.models.interview import Interview
 from app.models.role import InterviewRole
 from app.models.transcript_message import TranscriptMessage
+from app.models.criterion import Criterion
 from app.schemas.interviews import (
     InterviewCreateRequest,
     InterviewDetailResponse,
+    InterviewLaunchRequest,
+    InterviewLaunchResponse,
     InterviewListResponse,
     InterviewResponse,
+    LaunchInterviewItem,
     LiveCountResponse,
     TranscriptMessageResponse,
 )
-from app.services import audit_service
+from app.services import audit_service, email_service
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +184,141 @@ def _to_response(interview: Interview) -> InterviewResponse:
     )
 
 
-def _message_to_response(m: TranscriptMessage) -> TranscriptMessageResponse:
+async def launch_interviews(
+    db: AsyncSession,
+    org_id: uuid.UUID,
+    user_id: uuid.UUID,
+    payload: InterviewLaunchRequest,
+) -> InterviewLaunchResponse:
+    """End-to-end: create role, criteria, candidates, interviews.
+
+    Sends invitation emails via Resend for each candidate.
+    """
+    # 1. Create the role
+    role = InterviewRole(
+        organization_id=org_id,
+        title=payload.title,
+        department=payload.department,
+        seniority=payload.seniority,
+        location="",
+        description=payload.description,
+        status="live",
+    )
+    db.add(role)
+    await db.flush()
+
+    # 2. Create criteria
+    for i, c in enumerate(payload.criteria):
+        db.add(Criterion(
+            role_id=role.id,
+            name=c.name,
+            description=c.description,
+            weight=c.weight,
+            question_count=c.question_count,
+            color=c.color,
+            sort_order=i,
+        ))
+    await db.flush()
+
+    # 3. Create candidates + interviews + send emails
+    items: list[LaunchInterviewItem] = []
+    emails_sent = 0
+
+    for candidate_input in payload.candidates:
+        initials = _make_initials(candidate_input.name)
+        candidate = Candidate(
+            role_id=role.id,
+            organization_id=org_id,
+            name=candidate_input.name,
+            initials=initials,
+            email=candidate_input.email,
+            status="pending",
+        )
+        db.add(candidate)
+        await db.flush()
+
+        token = secrets.token_urlsafe(32)
+        interview = Interview(
+            candidate_id=candidate.id,
+            role_id=role.id,
+            organization_id=org_id,
+            token=token,
+            status="pending",
+            config_duration=payload.config_duration,
+            config_tone=payload.config_tone,
+            config_adaptive=payload.config_adaptive,
+        )
+        db.add(interview)
+        await db.flush()
+
+        link = f"{settings.frontend_url}/i/{token}"
+
+        sent = await email_service.send_interview_email(
+            to=candidate_input.email,
+            candidate_name=candidate_input.name,
+            role_title=payload.title,
+            interview_link=link,
+            duration=payload.config_duration,
+        )
+        if sent:
+            emails_sent += 1
+
+        items.append(LaunchInterviewItem(
+            id=str(interview.id),
+            candidate_name=candidate_input.name,
+            candidate_email=candidate_input.email,
+            link=link,
+            email_sent=sent,
+        ))
+
+    await audit_service.log_event(
+        db, org_id, user_id, "human",
+        "Interviews Launched",
+        (
+            f"Created role '{payload.title}' with "
+            f"{len(items)} interview(s)"
+        ),
+        "🚀",
+    )
+
+    n = len(items)
+    if emails_sent == n and n > 0:
+        msg = f"Created {n} interview(s). Emails sent."
+    elif emails_sent > 0:
+        msg = (
+            f"Created {n} interview(s). "
+            f"{emails_sent} email(s) sent."
+        )
+    elif n > 0:
+        msg = (
+            f"Created {n} interview(s). "
+            "Email sending not configured."
+        )
+    else:
+        msg = "Role created with no candidates."
+
+    logger.info(
+        "interviews_launched role=%s count=%s emails=%s",
+        role.id, n, emails_sent,
+    )
+
+    return InterviewLaunchResponse(
+        role_id=str(role.id),
+        interviews=items,
+        message=msg,
+    )
+
+
+def _make_initials(name: str) -> str:
+    parts = name.strip().split()
+    if len(parts) >= 2:
+        return (parts[0][0] + parts[-1][0]).upper()
+    return name[:2].upper() if name else "??"
+
+
+def _message_to_response(
+    m: TranscriptMessage,
+) -> TranscriptMessageResponse:
     return TranscriptMessageResponse(
         id=str(m.id),
         speaker=m.speaker,
