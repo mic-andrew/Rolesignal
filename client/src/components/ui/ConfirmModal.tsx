@@ -23,46 +23,28 @@ export function ConfirmModal({
 
   return (
     <div
-      className="animate-fade-in"
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9998,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "rgba(0,0,0,0.5)",
-        backdropFilter: "blur(4px)",
-      }}
+      className="animate-fade-in fixed inset-0 z-9998 flex items-center justify-center bg-black/50 backdrop-blur-xs"
       onClick={onCancel}
     >
       <div
-        style={{
-          background: "var(--color-layer)",
-          borderRadius: 14,
-          padding: 24,
-          width: 400,
-          maxWidth: "90vw",
-          boxShadow: "0 16px 48px rgba(0,0,0,0.2)",
-          border: "1px solid var(--color-edge)",
-        }}
+        className="bg-layer rounded-2xl p-6 w-[400px] max-w-[90vw] shadow-[0_16px_48px_rgba(0,0,0,0.2)] border border-edge"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)", margin: "0 0 8px" }}>
+        <h3 className="text-base font-bold text-ink mb-2">
           {title}
         </h3>
-        <p style={{ fontSize: 13, color: "var(--color-ink2)", margin: "0 0 20px", lineHeight: 1.5 }}>
+        <p className="text-[13px] text-ink2 mb-5 leading-normal">
           {message}
         </p>
-        <div className="flex justify-end" style={{ gap: 8 }}>
+        <div className="flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel}>
             Cancel
           </Button>
           <Button
-            variant={variant === "danger" ? "primary" : "primary"}
+            variant="primary"
             size="sm"
             onClick={onConfirm}
-            style={variant === "danger" ? { background: "#EF4444" } : undefined}
+            className={variant === "danger" ? "bg-[#EF4444]!" : ""}
           >
             {confirmLabel}
           </Button>

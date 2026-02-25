@@ -12,16 +12,7 @@ interface AddCandidateModalProps {
   defaultRoleId?: string;
 }
 
-const fieldStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "11px 14px",
-  background: "var(--color-layer)",
-  border: "1px solid var(--color-edge)",
-  borderRadius: 8,
-  color: "var(--color-ink)",
-  fontSize: 13,
-  outline: "none",
-};
+const FIELD_CLASS = "w-full px-3.5 py-[11px] bg-layer border border-edge rounded-lg text-ink text-[13px] outline-none";
 
 export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalProps) {
   const queryClient = useQueryClient();
@@ -57,38 +48,37 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center"
-      style={{ background: "rgba(0,0,0,0.6)", zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/60 z-100"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <Card style={{ width: "100%", maxWidth: 420, padding: 0 }} className="animate-fade-in">
-        <div className="flex items-center justify-between" style={{ padding: "18px 24px", borderBottom: "1px solid var(--color-edge)" }}>
-          <div className="flex items-center" style={{ gap: 8 }}>
-            <RiUserAddLine size={18} style={{ color: "var(--color-brand)" }} />
-            <h3 style={{ fontSize: 16, fontWeight: 700, color: "var(--color-ink)" }}>Add Candidate</h3>
+      <Card className="animate-fade-in w-full max-w-[420px] p-0!">
+        <div className="flex items-center justify-between px-6 py-[18px] border-b border-edge">
+          <div className="flex items-center gap-2">
+            <RiUserAddLine size={18} className="text-brand" />
+            <h3 className="text-base font-bold text-ink">Add Candidate</h3>
           </div>
           <button
             onClick={onClose}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--color-ink3)", display: "flex" }}
+            className="bg-transparent border-none cursor-pointer text-ink3 flex"
           >
             <RiCloseLine size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: "20px 24px" }}>
-          <div className="flex flex-col" style={{ gap: 14 }}>
+        <form onSubmit={handleSubmit} className="px-6 py-5">
+          <div className="flex flex-col gap-3.5">
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Name</label>
-              <input style={fieldStyle} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+              <label className="block text-xs font-semibold mb-1.5 text-ink2">Name</label>
+              <input className={FIELD_CLASS} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Email</label>
-              <input type="email" style={fieldStyle} placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <label className="block text-xs font-semibold mb-1.5 text-ink2">Email</label>
+              <input type="email" className={FIELD_CLASS} placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>Role</label>
+              <label className="block text-xs font-semibold mb-1.5 text-ink2">Role</label>
               <select
-                style={{ ...fieldStyle, appearance: "none" }}
+                className={`${FIELD_CLASS} appearance-none`}
                 value={roleId}
                 onChange={(e) => setRoleId(e.target.value)}
                 required
@@ -101,7 +91,7 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
             </div>
           </div>
 
-          <div className="flex justify-end" style={{ marginTop: 20, gap: 8 }}>
+          <div className="flex justify-end mt-5 gap-2">
             <Button variant="ghost" size="sm" onClick={onClose} type="button">
               Cancel
             </Button>

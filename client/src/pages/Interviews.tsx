@@ -15,15 +15,21 @@ const STATUS_FILTERS: Array<{ label: string; value: StatusFilter }> = [
   { label: "Completed",   value: "completed"   },
 ];
 
+const STAT_COLOR_CLASS: Record<string, string> = {
+  "var(--color-ink)": "text-ink",
+  "var(--color-warn)": "text-warn",
+  "var(--color-brand)": "text-brand",
+  "var(--color-success)": "text-success",
+};
+
 export default function Interviews() {
   const hook = useInterviews();
   const navigate = useNavigate();
 
   return (
-    <div>
-      {/* Stat bar */}
+    <div className="space-y-5">
       {!hook.isLoading && hook.stats.total > 0 && (
-        <div className="flex animate-fade-in" style={{ gap: 12, marginBottom: 20 }}>
+        <div className="grid grid-cols-4 gap-3 animate-fade-in">
           {([
             { label: "Total", value: hook.stats.total, color: "var(--color-ink)" },
             { label: "Pending", value: hook.stats.pending, color: "var(--color-warn)" },
@@ -32,30 +38,25 @@ export default function Interviews() {
           ] as const).map((s) => (
             <div
               key={s.label}
-              style={{
-                flex: 1, padding: "14px 18px", borderRadius: 12,
-                background: "var(--color-layer)", border: "1px solid var(--color-edge)",
-              }}
+              className="px-5 py-4 rounded-xl bg-layer border border-edge"
             >
-              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-ink3)", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: s.color, fontFamily: "var(--font-family-mono)" }}>{s.value}</div>
+              <div className="text-[11px] font-medium text-ink3 mb-1.5">{s.label}</div>
+              <div className={`text-[22px] font-extrabold font-family-mono ${STAT_COLOR_CLASS[s.color]}`}>{s.value}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Search + filters + Send button */}
-      <div className="flex items-center animate-fade-in" style={{ gap: 10, marginBottom: 20 }}>
+      <div className="flex items-center gap-2.5 animate-fade-in">
         <div
-          className="flex items-center flex-1"
-          style={{ gap: 8, padding: "7px 16px", background: "var(--color-layer)", border: "1px solid var(--color-edge)", borderRadius: 8 }}
+          className="flex items-center flex-1 gap-2 px-4 py-[9px] bg-layer border border-edge rounded-lg"
         >
           <RiSearchLine size={16} className="text-ink3 shrink-0" />
           <input
             value={hook.search}
             onChange={(e) => hook.setSearch(e.target.value)}
             placeholder="Search by candidate name..."
-            style={{ flex: 1, fontSize: 13, color: "var(--color-ink)", background: "transparent", border: "none", outline: "none" }}
+            className="flex-1 text-[13px] text-ink bg-transparent border-none outline-none"
           />
         </div>
 
@@ -76,10 +77,9 @@ export default function Interviews() {
         </Button>
       </div>
 
-      {/* Role filter */}
       {hook.roles.length > 1 && (
-        <div className="flex items-center animate-fade-in" style={{ gap: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}>Role:</span>
+        <div className="flex items-center gap-2 animate-fade-in">
+          <span className="text-xs text-ink3 font-medium">Role:</span>
           <Button
             variant={hook.roleFilter === "all" ? "primary" : "ghost"}
             size="sm"
@@ -100,7 +100,6 @@ export default function Interviews() {
         </div>
       )}
 
-      {/* Content */}
       {hook.isLoading ? (
         <LoadingSkeleton rows={4} />
       ) : hook.interviews.length === 0 && hook.stats.total === 0 ? (
@@ -112,13 +111,12 @@ export default function Interviews() {
       ) : hook.interviews.length === 0 ? (
         <EmptyState title="No interviews match your filters" description="Try adjusting your search or filters." />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
+        <div className="grid grid-cols-3 gap-4">
           {hook.interviews.map((interview, i) => (
             <InterviewCard key={interview.id} interview={interview} index={i} />
           ))}
         </div>
       )}
-
     </div>
   );
 }

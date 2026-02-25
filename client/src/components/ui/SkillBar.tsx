@@ -13,19 +13,17 @@ function barColor(v: number): string {
 export function SkillBar({ label, value, delay = 0 }: SkillBarProps) {
   const color = barColor(value);
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div className="flex justify-between" style={{ marginBottom: 5 }}>
-        <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-ink2)" }}>{label}</span>
-        <span style={{ fontSize: 12, fontWeight: 700, fontFamily: "var(--font-family-mono)", color }}>{value}</span>
+    <div className="mb-3.5">
+      <div className="flex justify-between mb-1">
+        <span className="text-xs font-medium text-ink2">{label}</span>
+        <span className="text-xs font-bold font-mono" style={{ color }}>{value}</span>
       </div>
-      <div style={{ height: 5, background: "var(--color-edge)", borderRadius: 3, overflow: "hidden" }}>
+      <div className="h-[5px] bg-edge rounded-sm overflow-hidden">
         <div
-          className="animate-bar-fill"
+          className="animate-bar-fill h-full rounded-sm"
           style={{
-            height: "100%",
             width: `${value}%`,
             background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-            borderRadius: 3,
             animationDelay: `${delay * 0.08}s`,
           }}
         />

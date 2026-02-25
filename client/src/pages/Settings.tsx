@@ -19,11 +19,7 @@ const TABS: Array<{ id: SettingsTab; label: string }> = [
 
 const TONES: AITone[] = ["Professional", "Conversational", "Challenging"];
 
-const inputCls: React.CSSProperties = {
-  width: "100%", padding: "11px 14px",
-  background: "var(--color-canvas2)", border: "1px solid var(--color-edge)",
-  borderRadius: 8, color: "var(--color-ink)", fontSize: 13,
-};
+const INPUT_CLS = "w-full px-3.5 py-[11px] bg-canvas2 border border-edge rounded-lg text-ink text-[13px] outline-none";
 
 export default function Settings() {
   const {
@@ -55,37 +51,30 @@ export default function Settings() {
 
   return (
     <>
-      <div className="flex" style={{ gap: 28 }}>
-        {/* Tab sidebar */}
-        <div className="shrink-0 animate-fade-in" style={{ width: 180 }}>
+      <div className="flex gap-7">
+        <div className="shrink-0 animate-fade-in w-[180px]">
           {TABS.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className="w-full rounded-lg text-left border-0 cursor-pointer transition-all"
-              style={{
-                padding: "9px 14px",
-                fontSize: 13,
-                marginBottom: 2,
-                background: activeTab === id ? "var(--acg)" : "transparent",
-                color: activeTab === id ? "var(--color-brand2)" : "var(--color-ink3)",
-                fontWeight: activeTab === id ? 700 : 500,
-              }}
+              className={`w-full rounded-lg text-left border-0 cursor-pointer transition-all px-3.5 py-2 text-[13px] mb-0.5 ${
+                activeTab === id
+                  ? "bg-(--acg) text-brand2 font-bold"
+                  : "bg-transparent text-ink3 font-medium hover:text-ink2 hover:bg-(--acg2)"
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Tab content */}
         <div className="flex-1 animate-fade-in-scale" key={activeTab}>
-          {/* General */}
           {activeTab === "general" && (
             <div>
-              <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--color-ink)" }}>Organization</h2>
-              <Card padding="p-0" style={{ padding: 24 }}>
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-4" style={{ color: "var(--color-ink3)" }}>Company Details</div>
-                <div className="grid grid-cols-2 gap-3.5">
+              <h2 className="text-[17px] font-bold mb-5 text-ink">Organization</h2>
+              <Card padding="p-0" className="p-6">
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Company Details</div>
+                <div className="grid grid-cols-2 gap-4">
                   {[
                     { l: "Company Name", v: "Acme Corp"  },
                     { l: "Industry",     v: "Technology" },
@@ -93,38 +82,38 @@ export default function Settings() {
                     { l: "Website",      v: "acme.com"   },
                   ].map(({ l, v }) => (
                     <div key={l}>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--color-ink2)" }}>{l}</label>
-                      <input style={inputCls} defaultValue={v} />
+                      <label className="block text-xs font-semibold mb-1.5 text-ink2">{l}</label>
+                      <input className={INPUT_CLS} defaultValue={v} />
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-end mt-4">
+                <div className="flex justify-end mt-5">
                   <Button size="sm">Save Changes</Button>
                 </div>
               </Card>
             </div>
           )}
 
-          {/* Team */}
           {activeTab === "team" && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[17px] font-bold" style={{ color: "var(--color-ink)" }}>Team Members</h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[17px] font-bold text-ink">Team Members</h2>
                 <Button size="sm" onClick={() => inviteMember("new@example.com")}>Invite Member</Button>
               </div>
               <Card padding="p-0" className="overflow-hidden">
                 {team.map((member, i) => (
                   <div
                     key={member.id}
-                    className="flex items-center"
-                    style={{ gap: 14, padding: "14px 20px", borderBottom: i < team.length - 1 ? "1px solid var(--color-edge)" : "none" }}
+                    className={`flex items-center gap-3.5 px-5 py-4 ${
+                      i < team.length - 1 ? "border-b border-edge" : ""
+                    }`}
                   >
                     <Avatar initials={member.initials} size={36} color={member.status === "active" ? "#7C6FFF" : "#6B6B8A"} />
                     <div className="flex-1">
-                      <div className="text-sm font-semibold" style={{ color: "var(--color-ink)" }}>{member.name}</div>
-                      <div className="text-xs" style={{ color: "var(--color-ink3)" }}>{member.email}</div>
+                      <div className="text-sm font-semibold text-ink">{member.name}</div>
+                      <div className="text-xs text-ink3">{member.email}</div>
                     </div>
-                    <span className="text-xs font-medium rounded-md" style={{ color: "var(--color-ink2)", padding: "4px 10px", background: "var(--color-layer2)" }}>
+                    <span className="text-xs font-medium rounded-md text-ink2 px-2.5 py-1 bg-layer2">
                       {member.role}
                     </span>
                     <Badge variant={member.status === "active" ? "active" : "invited"} />
@@ -137,23 +126,22 @@ export default function Settings() {
             </div>
           )}
 
-          {/* Templates */}
           {activeTab === "templates" && (
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[17px] font-bold" style={{ color: "var(--color-ink)" }}>Interview Templates</h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-[17px] font-bold text-ink">Interview Templates</h2>
                 <Button size="sm">New Template</Button>
               </div>
-              <div className="grid grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-2 gap-4">
                 {templates.map((t) => (
-                  <Card key={t.id} glow padding="p-0" style={{ padding: 20 }}>
-                    <div className="text-sm font-bold mb-1" style={{ color: "var(--color-ink)" }}>{t.name}</div>
-                    <div className="text-xs mb-3.5" style={{ color: "var(--color-ink3)" }}>{t.role}</div>
+                  <Card key={t.id} glow padding="p-0" className="p-5">
+                    <div className="text-sm font-bold mb-1 text-ink">{t.name}</div>
+                    <div className="text-xs mb-4 text-ink3">{t.role}</div>
                     <div className="flex gap-2 mb-4">
                       {[{ l: "Duration", v: `${t.duration}m` }, { l: "Criteria", v: t.criteriaCount }, { l: "Used", v: t.usedCount }].map(({ l, v }) => (
-                        <div key={l} className="flex-1 text-center rounded-lg" style={{ padding: "8px 10px", background: "var(--color-canvas2)", border: "1px solid var(--color-edge)" }}>
-                          <div className="text-sm font-bold font-mono" style={{ color: "var(--color-brand)" }}>{v}</div>
-                          <div className="text-[10px] mt-0.5" style={{ color: "var(--color-ink3)" }}>{l}</div>
+                        <div key={l} className="flex-1 text-center rounded-lg px-2.5 py-2 bg-canvas2 border border-edge">
+                          <div className="text-sm font-bold font-mono text-brand">{v}</div>
+                          <div className="text-[10px] mt-0.5 text-ink3">{l}</div>
                         </div>
                       ))}
                     </div>
@@ -167,31 +155,31 @@ export default function Settings() {
             </div>
           )}
 
-          {/* AI Config */}
           {activeTab === "ai" && (
             <div>
-              <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--color-ink)" }}>AI Configuration</h2>
-              <Card padding="p-0" style={{ padding: 24 }}>
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-3.5" style={{ color: "var(--color-ink3)" }}>Interview Tone</div>
+              <h2 className="text-[17px] font-bold mb-5 text-ink">AI Configuration</h2>
+              <Card padding="p-0" className="p-6">
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Interview Tone</div>
                 <div className="flex gap-2.5 mb-7">
                   {TONES.map((tone) => (
                     <button
                       key={tone}
                       onClick={() => setTone(tone)}
-                      className="flex-1 cursor-pointer border-0 text-center transition-all rounded-xl"
-                      style={{
-                        padding: 16,
-                        border: aiConfig.tone === tone ? "2px solid var(--color-brand)" : "1px solid var(--color-edge)",
-                        background: aiConfig.tone === tone ? "var(--acg)" : "var(--color-layer)",
-                      }}
+                      className={`flex-1 cursor-pointer text-center transition-all p-4 rounded-xl ${
+                        aiConfig.tone === tone
+                          ? "border-2 border-brand bg-(--acg)"
+                          : "border border-edge bg-layer"
+                      }`}
                     >
-                      <div className="text-[13px] font-bold mb-1" style={{ color: aiConfig.tone === tone ? "var(--color-brand)" : "var(--color-ink)" }}>{tone}</div>
-                      <div className="text-[11px]" style={{ color: "var(--color-ink3)" }}>{tone === "Professional" ? "Formal" : tone === "Conversational" ? "Warm & natural" : "Rigorous"}</div>
+                      <div className={`text-[13px] font-bold mb-1 ${
+                        aiConfig.tone === tone ? "text-brand" : "text-ink"
+                      }`}>{tone}</div>
+                      <div className="text-[11px] text-ink3">{tone === "Professional" ? "Formal" : tone === "Conversational" ? "Warm & natural" : "Rigorous"}</div>
                     </button>
                   ))}
                 </div>
 
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-3.5" style={{ color: "var(--color-ink3)" }}>Behavior Sliders</div>
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Behavior Sliders</div>
                 {([
                   { key: "formality",    label: "Formality"     },
                   { key: "probingDepth", label: "Probing Depth" },
@@ -200,8 +188,8 @@ export default function Settings() {
                 ] as const).map(({ key, label }) => (
                   <div key={key} className="mb-4">
                     <div className="flex justify-between mb-1.5">
-                      <span className="text-xs font-medium" style={{ color: "var(--color-ink2)" }}>{label}</span>
-                      <span className="text-xs font-bold font-mono" style={{ color: "var(--color-brand)" }}>{aiConfig[key]}%</span>
+                      <span className="text-xs font-medium text-ink2">{label}</span>
+                      <span className="text-xs font-bold font-mono text-brand">{aiConfig[key]}%</span>
                     </div>
                     <input
                       type="range"
@@ -209,8 +197,8 @@ export default function Settings() {
                       max={100}
                       value={aiConfig[key]}
                       onChange={(e) => setSlider(key, Number(e.target.value))}
+                      className="w-full"
                       style={{
-                        width: "100%",
                         background: `linear-gradient(90deg, var(--color-brand) ${aiConfig[key]}%, var(--color-edge) ${aiConfig[key]}%)`,
                       }}
                     />
@@ -220,23 +208,24 @@ export default function Settings() {
             </div>
           )}
 
-          {/* Branding */}
           {activeTab === "brand" && (
             <div>
-              <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--color-ink)" }}>Branding</h2>
-              <Card padding="p-0" style={{ padding: 24 }}>
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-3.5" style={{ color: "var(--color-ink3)" }}>Logo</div>
+              <h2 className="text-[17px] font-bold mb-5 text-ink">Branding</h2>
+              <Card padding="p-0" className="p-6">
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Logo</div>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="flex items-center justify-center text-xl font-bold rounded-xl" style={{ width: 72, height: 72, color: "var(--color-brand)", background: "var(--acg)", border: "2px dashed var(--color-edge2)" }}>S</div>
+                  <div className="flex items-center justify-center text-xl font-bold rounded-xl w-[72px] h-[72px] text-brand bg-(--acg) border-2 border-dashed border-edge2">S</div>
                   <Button variant="ghost" size="sm">Upload Logo</Button>
                 </div>
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-3.5" style={{ color: "var(--color-ink3)" }}>Brand Color</div>
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Brand Color</div>
                 <div className="flex gap-2.5">
                   {["#7C6FFF", "#22C997", "#FFAD33", "#EC4899", "#3B82F6"].map((c) => (
                     <button
                       key={c}
-                      className="cursor-pointer transition-all"
-                      style={{ width: 44, height: 44, borderRadius: 10, background: c, border: c === "#7C6FFF" ? "2px solid #fff" : "2px solid transparent" }}
+                      className={`w-11 h-11 rounded-[10px] cursor-pointer transition-all border-0 ${
+                        c === "#7C6FFF" ? "ring-2 ring-white" : ""
+                      }`}
+                      style={{ background: c }}
                     />
                   ))}
                 </div>
@@ -244,46 +233,51 @@ export default function Settings() {
             </div>
           )}
 
-          {/* Governance */}
           {activeTab === "governance" && (
             <div>
-              <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--color-ink)" }}>Governance & Compliance</h2>
-              <Card padding="p-0" style={{ padding: 24 }}>
-                <div className="text-[11px] font-bold uppercase tracking-wide mb-3.5" style={{ color: "var(--color-ink3)" }}>Audit & Controls</div>
+              <h2 className="text-[17px] font-bold mb-5 text-ink">Governance & Compliance</h2>
+              <Card padding="p-0" className="p-6">
+                <div className="text-[11px] font-bold uppercase tracking-wide mb-4 text-ink3">Audit & Controls</div>
                 {[
                   { l: "Require human approval before rejection", on: true  },
                   { l: "Log all AI decisions",                   on: true  },
                   { l: "Enable bias detection alerts",           on: true  },
                   { l: "Mandatory re-review for borderline scores", on: false },
                 ].map(({ l, on }) => (
-                  <div key={l} className="flex items-center justify-between" style={{ padding: "12px 0", borderBottom: "1px solid var(--color-edge)" }}>
-                    <span className="text-[13px]" style={{ color: "var(--color-ink)" }}>{l}</span>
-                    <div
-                      className="cursor-pointer"
-                      style={{ width: 44, height: 24, borderRadius: 12, padding: 2, background: on ? "var(--color-brand)" : "var(--color-edge2)", boxShadow: on ? "0 0 10px rgba(124,111,255,0.3)" : "none", transition: "all 0.2s" }}
+                  <div key={l} className="flex items-center justify-between py-3.5 border-b border-edge">
+                    <span className="text-[13px] text-ink">{l}</span>
+                    <button
+                      className={`border-0 cursor-pointer shrink-0 w-11 h-6 rounded-xl p-0.5 transition-colors duration-200 ${
+                        on
+                          ? "bg-brand shadow-[0_0_10px_rgba(124,111,255,0.3)]"
+                          : "bg-edge2"
+                      }`}
                     >
-                      <div style={{ width: 20, height: 20, borderRadius: 10, background: "#fff", marginLeft: on ? 20 : 0, transition: "margin 0.2s" }} />
-                    </div>
+                      <div
+                        className={`w-5 h-5 rounded-full bg-white transition-all duration-200 ${
+                          on ? "ml-5" : "ml-0"
+                        }`}
+                      />
+                    </button>
                   </div>
                 ))}
               </Card>
             </div>
           )}
 
-          {/* Integrations */}
           {activeTab === "integrations" && (
             <div>
-              <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--color-ink)" }}>Integrations</h2>
-              <div className="grid grid-cols-2 gap-3.5">
+              <h2 className="text-[17px] font-bold mb-5 text-ink">Integrations</h2>
+              <div className="grid grid-cols-2 gap-4">
                 {integrations.map((int) => (
-                  <Card key={int.id} glow padding="p-0" className="flex items-center justify-between" style={{ padding: "16px 20px" }}>
+                  <Card key={int.id} glow padding="p-0" className="flex items-center justify-between px-5 py-4">
                     <div className="flex items-center gap-3">
                       <span className="text-[22px]">{int.emoji}</span>
                       <div>
-                        <div className="text-sm font-semibold" style={{ color: "var(--color-ink)" }}>{int.name}</div>
+                        <div className="text-sm font-semibold text-ink">{int.name}</div>
                         <div className="flex items-center gap-1.5 mt-1">
                           <Badge variant={int.connected ? "live" : "pending"} />
-                          <span className="text-xs" style={{ color: "var(--color-ink3)" }}>{int.description}</span>
+                          <span className="text-xs text-ink3">{int.description}</span>
                         </div>
                       </div>
                     </div>

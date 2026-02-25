@@ -16,6 +16,7 @@ from app.models.interview import Interview
 from app.models.role import InterviewRole
 from app.models.transcript_message import TranscriptMessage
 from app.models.criterion import Criterion
+from app.models.sub_criterion import SubCriterion
 from app.schemas.interviews import (
     InterviewCreateRequest,
     InterviewDetailResponse,
@@ -207,9 +208,9 @@ async def launch_interviews(
     db.add(role)
     await db.flush()
 
-    # 2. Create criteria
+    # 2. Create criteria + sub-criteria
     for i, c in enumerate(payload.criteria):
-        db.add(Criterion(
+        criterion = Criterion(
             role_id=role.id,
             name=c.name,
             description=c.description,
@@ -217,7 +218,18 @@ async def launch_interviews(
             question_count=c.question_count,
             color=c.color,
             sort_order=i,
-        ))
+        )
+        db.add(criterion)
+        await db.flush()
+
+        for j, sc in enumerate(c.sub_criteria):
+            db.add(SubCriterion(
+                criterion_id=criterion.id,
+                name=sc.name,
+                description=sc.description,
+                weight=sc.weight,
+                sort_order=j,
+            ))
     await db.flush()
 
     # 3. Create candidates + interviews + send emails

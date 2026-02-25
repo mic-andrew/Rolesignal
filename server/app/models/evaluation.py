@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from app.models.candidate import Candidate
     from app.models.criterion_score import CriterionScore
     from app.models.interview import Interview
+    from app.models.sub_criterion_score import SubCriterionScore
 
 
 class Evaluation(Base):
@@ -32,5 +33,8 @@ class Evaluation(Base):
     interview: Mapped["Interview"] = relationship(back_populates="evaluation")
     candidate: Mapped["Candidate"] = relationship(back_populates="evaluations")
     criterion_scores: Mapped[list["CriterionScore"]] = relationship(
+        back_populates="evaluation", cascade="all, delete-orphan"
+    )
+    sub_criterion_scores: Mapped[list["SubCriterionScore"]] = relationship(
         back_populates="evaluation", cascade="all, delete-orphan"
     )

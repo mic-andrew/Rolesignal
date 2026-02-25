@@ -129,11 +129,24 @@ export function useSetupInterview() {
           weight: c.weight,
           questionCount: c.questionCount,
           color: c.color,
+          subCriteria: (c.subCriteria ?? []).map((sc, j) => ({
+            id: `sc${Date.now()}-${i}-${j}`,
+            name: sc.name,
+            description: sc.description,
+            weight: sc.weight,
+          })),
         })),
       );
       showToast(`Extracted ${parsed.length} criteria`, "success");
-    } catch {
-      showToast("Failed to extract criteria", "error");
+    } catch (err: unknown) {
+      const detail =
+        err != null &&
+        typeof err === "object" &&
+        "response" in err
+          ? (err as { response?: { data?: { detail?: string } } }).response
+              ?.data?.detail
+          : undefined;
+      showToast(detail || "Failed to extract criteria", "error");
     } finally {
       setIsParsing(false);
     }
@@ -184,6 +197,7 @@ export function useSetupInterview() {
           weight: Math.min(10, remaining),
           questionCount: 3,
           color: "#7C6FFF",
+          subCriteria: [],
         },
       ];
     });
@@ -192,6 +206,88 @@ export function useSetupInterview() {
   const removeCriterion = useCallback((id: string) => {
     setCriteria((prev) => prev.filter((c) => c.id !== id));
   }, []);
+
+  // --- Sub-criteria CRUD ---
+  const addSubCriterion = useCallback(
+    (criterionId: string) => {
+      setCriteria((prev) =>
+        prev.map((c) => {
+          if (c.id !== criterionId) return c;
+          const currentTotal = c.subCriteria.reduce((s, sc) => s + sc.weight, 0);
+          const remaining = Math.max(0, 100 - currentTotal);
+          return {
+            ...c,
+            subCriteria: [
+              ...c.subCriteria,
+              {
+                id: `sc${Date.now()}`,
+                name: "New Sub-criterion",
+                description: "",
+                weight: Math.min(20, remaining),
+              },
+            ],
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const updateSubCriterion = useCallback(
+    (criterionId: string, subId: string, updates: Partial<{ name: string; description: string; weight: number }>) => {
+      setCriteria((prev) =>
+        prev.map((c) => {
+          if (c.id !== criterionId) return c;
+          return {
+            ...c,
+            subCriteria: c.subCriteria.map((sc) =>
+              sc.id === subId ? { ...sc, ...updates } : sc,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const removeSubCriterion = useCallback(
+    (criterionId: string, subId: string) => {
+      setCriteria((prev) =>
+        prev.map((c) => {
+          if (c.id !== criterionId) return c;
+          return {
+            ...c,
+            subCriteria: c.subCriteria.filter((sc) => sc.id !== subId),
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  // --- Import from template ---
+  const importFromTemplate = useCallback(
+    (template: { criteria: Array<{ name: string; description: string; weight: number; subCriteria: Array<{ name: string; description: string; weight: number }> }> }) => {
+      setCriteria(
+        template.criteria.map((c, i) => ({
+          id: `c${Date.now()}-${i}`,
+          name: c.name,
+          description: c.description,
+          weight: c.weight,
+          questionCount: 3,
+          color: "#7C6FFF",
+          subCriteria: (c.subCriteria ?? []).map((sc, j) => ({
+            id: `sc${Date.now()}-${i}-${j}`,
+            name: sc.name,
+            description: sc.description,
+            weight: sc.weight,
+          })),
+        })),
+      );
+      showToast("Criteria imported from template", "success");
+    },
+    [showToast],
+  );
 
   const totalWeight = criteria.reduce((s, c) => s + c.weight, 0);
 
@@ -231,6 +327,11 @@ export function useSetupInterview() {
           weight: c.weight,
           question_count: c.questionCount,
           color: c.color,
+          sub_criteria: c.subCriteria.map((sc) => ({
+            name: sc.name,
+            description: sc.description,
+            weight: sc.weight,
+          })),
         })),
         candidates,
         config_duration: config.duration,
@@ -270,6 +371,10 @@ export function useSetupInterview() {
     updateCriterionDescription,
     addCriterion,
     removeCriterion,
+    addSubCriterion,
+    updateSubCriterion,
+    removeSubCriterion,
+    importFromTemplate,
     isParsing,
     extractCriteria,
     config,

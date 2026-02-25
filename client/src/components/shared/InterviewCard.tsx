@@ -11,7 +11,7 @@ interface InterviewCardProps {
 }
 
 function formatDuration(seconds: number | null): string {
-  if (!seconds) return "—";
+  if (!seconds) return "\u2014";
   const mins = Math.floor(seconds / 60);
   return `${mins}m`;
 }
@@ -40,30 +40,29 @@ export function InterviewCard({ interview, index }: InterviewCardProps) {
   return (
     <Card
       padding="p-0"
-      className={`animate-fade-in delay-${Math.min(index + 1, 5) as 1 | 2 | 3 | 4 | 5}`}
-      style={{ padding: "16px 18px" }}
+      className={`animate-fade-in delay-${Math.min(index + 1, 5) as 1 | 2 | 3 | 4 | 5} px-5 py-4`}
     >
-      <div className="flex items-center" style={{ gap: 12, marginBottom: 12 }}>
+      <div className="flex items-center gap-3 mb-3.5">
         <Avatar initials={makeInitials(candidateName)} size={36} color="#7C6FFF" />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
             {candidateName}
           </div>
-          <div style={{ fontSize: 12, color: "var(--color-ink3)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div className="text-xs text-ink3 overflow-hidden text-ellipsis whitespace-nowrap">
             {roleTitle}
           </div>
         </div>
         <Badge variant={status as "pending" | "in_progress" | "completed"} />
       </div>
 
-      <div className="flex items-center justify-between" style={{ marginTop: 4 }}>
-        <div className="flex items-center" style={{ gap: 6 }}>
-          <RiTimeLine size={13} style={{ color: "var(--color-ink3)" }} />
-          <span style={{ fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}>
+      <div className="flex items-center justify-between mt-1">
+        <div className="flex items-center gap-1.5">
+          <RiTimeLine size={13} className="text-ink3" />
+          <span className="text-xs text-ink3 font-medium">
             {statusLabel}
           </span>
           {completedAt && (
-            <span style={{ fontSize: 11, color: "var(--color-ink3)", fontFamily: "var(--font-family-mono)", marginLeft: 4 }}>
+            <span className="text-[11px] text-ink3 font-mono ml-1">
               {new Date(completedAt).toLocaleDateString()}
             </span>
           )}
@@ -71,14 +70,7 @@ export function InterviewCard({ interview, index }: InterviewCardProps) {
         <button
           onClick={handleCopyLink}
           title="Copy interview link"
-          className="flex items-center justify-center"
-          style={{
-            width: 28, height: 28, borderRadius: 6,
-            background: "transparent", border: "none", cursor: "pointer",
-            color: "var(--color-ink3)", transition: "color 0.15s, background 0.15s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-brand)"; e.currentTarget.style.background = "var(--acg)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-ink3)"; e.currentTarget.style.background = "transparent"; }}
+          className="flex items-center justify-center w-7 h-7 rounded-md bg-transparent border-none cursor-pointer text-ink3 transition-colors duration-150 hover:text-brand hover:bg-(--acg)"
         >
           <RiFileCopyLine size={14} />
         </button>

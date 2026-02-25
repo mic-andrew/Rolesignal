@@ -58,12 +58,19 @@ class CandidateInput(BaseModel):
     email: str
 
 
+class SubCriterionInput(BaseModel):
+    name: str
+    description: str = ""
+    weight: int = 50
+
+
 class CriterionLaunchInput(BaseModel):
     name: str
     description: str = ""
     weight: int = 20
     question_count: int = 3
     color: str = "#7C6FFF"
+    sub_criteria: list[SubCriterionInput] = []
 
 
 class InterviewLaunchRequest(BaseModel):

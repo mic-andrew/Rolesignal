@@ -13,6 +13,7 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.role import InterviewRole
+    from app.models.sub_criterion import SubCriterion
 
 
 class Criterion(Base):
@@ -29,3 +30,6 @@ class Criterion(Base):
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
     role: Mapped["InterviewRole"] = relationship(back_populates="criteria")
+    sub_criteria: Mapped[list["SubCriterion"]] = relationship(
+        back_populates="criterion", cascade="all, delete-orphan"
+    )

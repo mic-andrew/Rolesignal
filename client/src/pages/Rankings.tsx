@@ -10,7 +10,19 @@ import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 
 const MEDAL = ["\u{1F947}", "\u{1F948}", "\u{1F949}"];
-const MEDAL_COLOR = ["#FFD700", "#C0C0C0", "#CD7F32"];
+const MEDAL_COLOR_CLASS = ["text-[#FFD700]", "text-[#C0C0C0]", "text-[#CD7F32]"];
+
+function scoreColorClass(score: number): string {
+  if (score >= 80) return "text-success";
+  if (score >= 60) return "text-warn";
+  return "text-danger";
+}
+
+function barBgClass(score: number): string {
+  if (score >= 80) return "bg-success";
+  if (score >= 60) return "bg-warn";
+  return "bg-danger";
+}
 
 export default function Rankings() {
   const navigate = useNavigate();
@@ -26,47 +38,35 @@ export default function Rankings() {
   const activeRole = roles.find((r) => r.id === activeRoleId);
 
   return (
-    <div>
-      {/* Role tabs */}
-      <div className="flex items-center animate-fade-in" style={{ gap: 6, marginBottom: 18 }}>
-        {roles.map((role) => (
-          <button
-            key={role.id}
-            onClick={() => selectRole(role.id)}
-            className="cursor-pointer border-0 transition-all"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "7px 14px",
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: role.id === activeRoleId ? 700 : 500,
-              background: role.id === activeRoleId
-                ? "linear-gradient(135deg, var(--color-brand), #6358E0)"
-                : "transparent",
-              color: role.id === activeRoleId ? "#fff" : "var(--color-ink3)",
-              border: role.id === activeRoleId ? "none" : "1px solid var(--color-edge)",
-              boxShadow: role.id === activeRoleId ? "0 2px 12px rgba(124,111,255,0.3)" : "none",
-            }}
-          >
-            {role.title}
-            <span
-              style={{
-                padding: "1px 7px",
-                borderRadius: 10,
-                fontSize: 10,
-                fontWeight: 700,
-                background: role.id === activeRoleId ? "rgba(255,255,255,0.2)" : "var(--color-edge)",
-                color: role.id === activeRoleId ? "#fff" : "var(--color-ink3)",
-              }}
+    <div className="space-y-5">
+      <div className="flex items-center gap-1.5 animate-fade-in">
+        {roles.map((role) => {
+          const isActive = role.id === activeRoleId;
+          return (
+            <button
+              key={role.id}
+              onClick={() => selectRole(role.id)}
+              className={`cursor-pointer border-0 transition-all inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-lg text-[13px] ${
+                isActive
+                  ? "font-bold bg-linear-to-br from-brand to-[#6358E0] text-white border-none shadow-[0_2px_12px_rgba(124,111,255,0.3)]"
+                  : "font-medium bg-transparent text-ink3 border border-edge shadow-none"
+              }`}
             >
-              {role.candidateCount}
-            </span>
-          </button>
-        ))}
+              {role.title}
+              <span
+                className={`px-[7px] py-px rounded-[10px] text-[10px] font-bold ${
+                  isActive
+                    ? "bg-white/20 text-white"
+                    : "bg-edge text-ink3"
+                }`}
+              >
+                {role.candidateCount}
+              </span>
+            </button>
+          );
+        })}
 
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
 
         <Button variant="ghost" size="sm" onClick={toggleCompare}>
           <RiEyeLine size={14} />{compareMode ? "Exit Compare" : "Compare"}
@@ -76,28 +76,26 @@ export default function Rankings() {
         </Button>
       </div>
 
-      {/* Subtitle */}
       {activeRole && (
-        <div className="flex items-center animate-fade-in" style={{ gap: 8, marginBottom: 14 }}>
-          <span style={{ fontSize: 12, color: "var(--color-ink3)" }}>
+        <div className="flex items-center gap-2 animate-fade-in">
+          <span className="text-xs text-ink3">
             {activeRole.department} &middot; {activeRole.seniority} &middot; {activeRole.location}
           </span>
           <Badge variant="live" />
         </div>
       )}
 
-      {/* Table */}
       {candidates.length === 0 ? (
         <EmptyState title="No candidates yet" description="Candidates will appear here once they complete their interviews." />
       ) : (
         <Card padding="p-0" className="overflow-hidden animate-fade-in delay-2">
-          <table className="w-full" style={{ borderCollapse: "collapse" }}>
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={{ background: "var(--color-canvas2)" }}>
+              <tr className="bg-canvas2">
                 {["#", "Candidate", "Score", "Tech", "Behav", "Comm", "Risk", "Status", ""].map((h) => (
                   <th
                     key={h}
-                    style={{ padding: "10px 14px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "var(--color-ink3)", textTransform: "uppercase", letterSpacing: "0.06em", borderBottom: "1px solid var(--color-edge)" }}
+                    className="px-4 py-3 text-left text-[10px] font-bold text-ink3 uppercase tracking-[0.06em] border-b border-edge"
                   >
                     {h}
                   </th>
@@ -109,46 +107,44 @@ export default function Rankings() {
                 <tr
                   key={c.id}
                   onClick={() => compareMode ? toggleSelected(c.id) : navigate(`/evaluation/${c.id}`)}
-                  className="cursor-pointer transition-colors hover:bg-[var(--acg2)]"
-                  style={{
-                    borderBottom: "1px solid var(--color-edge)",
-                    background: compareMode && selectedIds.includes(c.id) ? "var(--acg2)" : "transparent",
-                  }}
+                  className={`cursor-pointer transition-colors hover:bg-(--acg2) border-b border-edge ${
+                    compareMode && selectedIds.includes(c.id) ? "bg-(--acg2)" : "bg-transparent"
+                  }`}
                 >
-                  <td style={{ padding: "10px 14px" }}>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: i < 3 ? MEDAL_COLOR[i] : "var(--color-ink3)" }}>
+                  <td className="px-4 py-3">
+                    <span className={`text-sm font-extrabold ${i < 3 ? MEDAL_COLOR_CLASS[i] : "text-ink3"}`}>
                       {i < 3 ? MEDAL[i] : i + 1}
                     </span>
                   </td>
 
-                  <td style={{ padding: "10px 14px" }}>
-                    <div className="flex items-center" style={{ gap: 10 }}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
                       {compareMode && (
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(c.id)}
                           readOnly
-                          style={{ accentColor: "var(--color-brand)" }}
+                          className="accent-brand"
                         />
                       )}
                       <Avatar initials={c.initials} size={30} color={c.color} />
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-ink)" }}>{c.name}</div>
-                        <div style={{ fontSize: 11, color: "var(--color-ink3)" }}>{c.date}</div>
+                        <div className="text-[13px] font-semibold text-ink">{c.name}</div>
+                        <div className="text-[11px] text-ink3">{c.date}</div>
                       </div>
                     </div>
                   </td>
 
-                  <td style={{ padding: "10px 14px" }}>
-                    <div className="flex items-center" style={{ gap: 8 }}>
-                      <div style={{ width: 50, height: 5, borderRadius: 3, overflow: "hidden", background: "var(--color-edge)" }}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-[50px] h-[5px] rounded-[3px] overflow-hidden bg-edge">
                         <div
-                          className="animate-bar-fill"
-                          style={{ height: "100%", width: `${c.score}%`, borderRadius: 3, background: c.score >= 80 ? "var(--color-success)" : c.score >= 60 ? "var(--color-warn)" : "var(--color-danger)" }}
+                          className={`h-full rounded-[3px] animate-bar-fill ${barBgClass(c.score)}`}
+                          style={{ width: `${c.score}%` }}
                         />
                       </div>
                       <span
-                        style={{ fontSize: 13, fontWeight: 800, fontFamily: "var(--font-family-mono)", color: c.score >= 80 ? "var(--color-success)" : c.score >= 60 ? "var(--color-warn)" : "var(--color-danger)" }}
+                        className={`text-[13px] font-extrabold font-family-mono ${scoreColorClass(c.score)}`}
                       >
                         {c.score}
                       </span>
@@ -156,20 +152,20 @@ export default function Rankings() {
                   </td>
 
                   {(["tech", "behavioral", "communication"] as const).map((sk) => (
-                    <td key={sk} style={{ padding: "10px 14px" }}>
+                    <td key={sk} className="px-4 py-3">
                       <span
-                        style={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-family-mono)", color: c.skills[sk] >= 80 ? "var(--color-success)" : c.skills[sk] >= 60 ? "var(--color-warn)" : "var(--color-danger)" }}
+                        className={`text-[13px] font-semibold font-family-mono ${scoreColorClass(c.skills[sk])}`}
                       >
                         {c.skills[sk]}
                       </span>
                     </td>
                   ))}
 
-                  <td style={{ padding: "10px 14px" }}>
+                  <td className="px-4 py-3">
                     {c.score >= 80 ? <Badge variant="shortlisted" /> : c.score >= 60 ? <Badge variant="pending" /> : <Badge variant="rejected" />}
                   </td>
-                  <td style={{ padding: "10px 14px" }}><Badge variant={c.status} /></td>
-                  <td style={{ padding: "10px 14px", color: "var(--color-ink3)" }}><RiArrowRightSLine size={16} /></td>
+                  <td className="px-4 py-3"><Badge variant={c.status} /></td>
+                  <td className="px-4 py-3 text-ink3"><RiArrowRightSLine size={16} /></td>
                 </tr>
               ))}
             </tbody>
@@ -177,13 +173,12 @@ export default function Rankings() {
         </Card>
       )}
 
-      {/* Comparison drawer */}
       {compareMode && selectedCandidates.length >= 2 && (
-        <div className="animate-fade-in-scale" style={{ marginTop: 20 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--color-ink)", marginBottom: 14 }}>
+        <div className="animate-fade-in-scale">
+          <h3 className="text-[15px] font-bold text-ink mb-4">
             Comparing: {selectedCandidates.map((c) => c.name.split(" ")[0]).join(" vs ")}
           </h3>
-          <div className="flex" style={{ gap: 14 }}>
+          <div className="flex gap-4">
             {selectedCandidates.map((c) => (
               <CompareCard key={c.id} candidate={c} />
             ))}

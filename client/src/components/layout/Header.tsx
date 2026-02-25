@@ -7,38 +7,30 @@ interface HeaderProps {
 export function Header({ title }: HeaderProps) {
   return (
     <header
-      className="flex items-center justify-between shrink-0"
-      style={{ padding: "14px 28px", borderBottom: "1px solid var(--color-edge)", background: "var(--color-canvas)" }}
+      className="sticky top-0 z-20 flex items-center justify-between shrink-0 h-16 px-6 border-b border-edge bg-canvas/95 backdrop-blur-md"
     >
-      <h1 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--color-ink)" }}>{title}</h1>
+      <h1 className="text-xl font-extrabold tracking-[-0.03em] text-ink">{title}</h1>
 
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-3">
         <div
-          className="flex items-center gap-2 cursor-pointer"
-          style={{ padding: "7px 16px", background: "var(--color-layer)", border: "1px solid var(--color-edge)", borderRadius: 8, fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}
+          className="flex items-center gap-2 cursor-pointer py-[7px] px-4 bg-layer border border-edge rounded-lg text-xs text-ink3 font-medium"
         >
           <RiSearchLine size={16} />
           <span>Search...</span>
           <span
-            style={{ padding: "1px 6px", background: "var(--color-edge)", borderRadius: 4, fontSize: 10, fontWeight: 600, marginLeft: 8 }}
+            className="py-px px-1.5 bg-edge rounded-[4px] text-[10px] font-semibold ml-2"
           >
             /
           </span>
         </div>
 
         <button
-          className="relative cursor-pointer bg-transparent border-0 text-ink2"
+          className="relative cursor-pointer bg-transparent border-0 text-ink2 p-1.5"
           aria-label="Notifications"
-          style={{ padding: 6 }}
         >
           <RiNotification3Line size={18} />
           <span
-            className="absolute flex items-center justify-center text-white"
-            style={{
-              top: 2, right: 2, width: 14, height: 14, borderRadius: "50%",
-              background: "var(--color-danger)", fontSize: 9, fontWeight: 700,
-              border: "2px solid var(--color-canvas)",
-            }}
+            className="absolute flex items-center justify-center text-white top-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-danger text-[9px] font-bold border-2 border-canvas"
           >
             3
           </span>

@@ -2,6 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import {
   RiDashboardLine, RiBriefcaseLine, RiGroupLine, RiVideoOnLine,
   RiBarChartLine, RiFileTextLine, RiSettings3Line, RiMenuFoldLine, RiMenuUnfoldLine,
+  RiFileList2Line,
 } from "react-icons/ri";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "../ui/Avatar";
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
   { to: "/candidates", icon: RiGroupLine,     label: "Candidates"       },
   { to: "/setup",      icon: RiBriefcaseLine, label: "Create Interview" },
   { to: "/rankings",   icon: RiBarChartLine,  label: "Rankings"         },
+  { to: "/criteria",   icon: RiFileList2Line, label: "Criteria"         },
   { to: "/audit",      icon: RiFileTextLine,  label: "Audit Log"        },
   { to: "/settings",   icon: RiSettings3Line, label: "Settings"         },
 ];
@@ -66,56 +68,19 @@ export function Sidebar() {
   return (
     <>
       <aside
-        style={{
-          width: collapsed ? 64 : 220,
-          background: "var(--color-canvas2)",
-          borderRight: "1px solid var(--color-edge)",
-          display: "flex",
-          flexDirection: "column",
-          flexShrink: 0,
-          height: "100vh",
-          position: "sticky",
-          top: 0,
-          transition: "width 0.25s cubic-bezier(0.16,1,0.3,1)",
-          overflow: "hidden",
-        }}
+        className={`bg-canvas2 border-r border-edge flex flex-col shrink-0 h-screen sticky top-0 transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden ${collapsed ? "w-16" : "w-[230px]"}`}
       >
-        {/* Logo row */}
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: collapsed ? "center" : "space-between",
-            padding: collapsed ? "20px 0 0" : "20px 10px 0",
-          }}
+          className={`flex items-center ${collapsed ? "justify-center pt-5 px-0" : "justify-between pt-5 px-3"}`}
         >
           <button
             onClick={() => navigate("/dashboard")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              cursor: "pointer",
-              background: "transparent",
-              border: "none",
-              padding: collapsed ? "0" : "0 12px",
-              justifyContent: collapsed ? "center" : undefined,
-              width: collapsed ? "100%" : undefined,
-              overflow: "hidden",
-            }}
+            className={`flex items-center gap-2.5 cursor-pointer bg-transparent border-none overflow-hidden ${collapsed ? "p-0 justify-center w-full" : "py-0 px-3"}`}
           >
             <Logo />
             {!collapsed && (
               <span
-                style={{
-                  fontSize: 17,
-                  fontWeight: 800,
-                  letterSpacing: "-0.03em",
-                  whiteSpace: "nowrap",
-                  background: "linear-gradient(135deg, var(--color-ink), var(--color-ink2))",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
+                className="text-[17px] font-extrabold tracking-[-0.03em] whitespace-nowrap bg-linear-to-br from-ink to-ink2 bg-clip-text text-transparent"
               >
                 RoleSignal
               </span>
@@ -124,15 +89,7 @@ export function Sidebar() {
           {!collapsed && (
             <button
               onClick={toggle}
-              style={{
-                width: 28, height: 28, borderRadius: 6,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", background: "transparent", border: "none",
-                color: "var(--color-ink3)", flexShrink: 0,
-                transition: "color 0.15s, background 0.15s",
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-ink2)"; e.currentTarget.style.background = "var(--acg2)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-ink3)"; e.currentTarget.style.background = "transparent"; }}
+              className="w-7 h-7 rounded-md flex items-center justify-center cursor-pointer bg-transparent border-none text-ink3 shrink-0 transition-all duration-150 hover:text-ink2 hover:bg-(--acg2)"
             >
               <RiMenuFoldLine size={16} />
             </button>
@@ -142,45 +99,28 @@ export function Sidebar() {
         {collapsed && (
           <button
             onClick={toggle}
-            style={{
-              width: 32, height: 32, borderRadius: 6,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              cursor: "pointer", background: "transparent", border: "none",
-              color: "var(--color-ink3)", margin: "10px auto 0",
-              transition: "color 0.15s, background 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = "var(--color-ink2)"; e.currentTarget.style.background = "var(--acg2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = "var(--color-ink3)"; e.currentTarget.style.background = "transparent"; }}
+            className="w-8 h-8 rounded-md flex items-center justify-center cursor-pointer bg-transparent border-none text-ink3 mx-auto mt-2.5 transition-all duration-150 hover:text-ink2 hover:bg-(--acg2)"
           >
             <RiMenuUnfoldLine size={16} />
           </button>
         )}
 
-        {/* Nav */}
         <nav
-          style={{
-            flex: 1, display: "flex", flexDirection: "column", gap: 2,
-            padding: collapsed ? "0 8px" : "0 10px",
-            marginTop: collapsed ? 20 : 36, overflow: "hidden",
-          }}
+          className={`flex-1 flex flex-col gap-0.5 overflow-hidden ${collapsed ? "px-2 mt-5" : "px-3 mt-8"}`}
         >
           {NAV_ITEMS.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} title={collapsed ? label : undefined} style={{ textDecoration: "none" }}>
+            <NavLink key={to} to={to} title={collapsed ? label : undefined} className="no-underline">
               {({ isActive }) => (
                 <div
-                  style={{
-                    display: "flex", alignItems: "center", gap: 11,
-                    padding: collapsed ? "10px 0" : "9px 12px", borderRadius: 8,
-                    cursor: "pointer",
-                    background: isActive ? "var(--acg)" : "transparent",
-                    color: isActive ? "var(--color-brand2)" : "var(--color-ink3)",
-                    fontWeight: isActive ? 600 : 500, fontSize: 13,
-                    transition: "all 0.15s ease", letterSpacing: "-0.01em",
-                    justifyContent: collapsed ? "center" : undefined,
-                    whiteSpace: "nowrap", overflow: "hidden",
-                  }}
+                  className={`flex items-center gap-[11px] rounded-lg cursor-pointer text-[13px] tracking-[-0.01em] whitespace-nowrap overflow-hidden transition-all duration-150 ease-in-out ${
+                    collapsed ? "py-2.5 px-0 justify-center" : "py-[9px] px-3"
+                  } ${
+                    isActive
+                      ? "bg-(--acg) text-brand2 font-semibold"
+                      : "bg-transparent text-ink3 font-medium hover:text-ink2 hover:bg-(--acg2)"
+                  }`}
                 >
-                  <Icon size={18} style={{ opacity: isActive ? 1 : 0.6, flexShrink: 0 }} />
+                  <Icon size={18} className={`shrink-0 ${isActive ? "opacity-100" : "opacity-60"}`} />
                   {!collapsed && label}
                 </div>
               )}
@@ -188,35 +128,21 @@ export function Sidebar() {
           ))}
         </nav>
 
-        {/* Footer */}
         <div
-          style={{
-            borderTop: "1px solid var(--color-edge)",
-            padding: collapsed ? "14px 8px" : "14px 10px",
-            display: "flex", flexDirection: "column", gap: 8, flexShrink: 0,
-          }}
+          className={`border-t border-edge flex flex-col gap-2 shrink-0 ${collapsed ? "py-3.5 px-2" : "py-3.5 px-3"}`}
         >
           {liveCount > 0 && (
             <button
               title={collapsed ? `${liveCount} Live Interview${liveCount !== 1 ? "s" : ""}` : undefined}
-              style={{
-                display: "flex", alignItems: "center", gap: 9,
-                padding: collapsed ? "6px 0" : "6px 12px",
-                cursor: "pointer", background: "transparent", border: "none",
-                borderRadius: 8, justifyContent: collapsed ? "center" : undefined,
-                overflow: "hidden", width: "100%",
-              }}
+              className={`flex items-center gap-[9px] cursor-pointer bg-transparent border-none rounded-lg overflow-hidden w-full ${
+                collapsed ? "py-1.5 px-0 justify-center" : "py-1.5 px-3"
+              }`}
             >
               <span
-                style={{
-                  width: 7, height: 7, borderRadius: "50%",
-                  background: "var(--color-success)",
-                  boxShadow: "0 0 8px var(--color-success)", flexShrink: 0,
-                }}
-                className="animate-breathe"
+                className="w-[7px] h-[7px] rounded-full bg-success shadow-[0_0_8px_var(--color-success)] shrink-0 animate-breathe"
               />
               {!collapsed && (
-                <span style={{ fontSize: 12, fontWeight: 500, color: "var(--color-ink2)", whiteSpace: "nowrap" }}>
+                <span className="text-xs font-medium text-ink2 whitespace-nowrap">
                   {liveCount} Live Interview{liveCount !== 1 ? "s" : ""}
                 </span>
               )}
@@ -225,21 +151,15 @@ export function Sidebar() {
           <button
             onClick={handleLogout}
             title={collapsed ? (user?.name ?? "User") : undefined}
-            style={{
-              display: "flex", alignItems: "center", gap: 9,
-              padding: collapsed ? "6px 0" : "6px 12px",
-              cursor: "pointer", background: "transparent", border: "none",
-              borderRadius: 8, justifyContent: collapsed ? "center" : undefined,
-              transition: "background 0.15s", overflow: "hidden", width: "100%",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--acg2)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+            className={`flex items-center gap-[9px] cursor-pointer bg-transparent border-none rounded-lg transition-colors duration-150 overflow-hidden w-full hover:bg-(--acg2) ${
+              collapsed ? "py-1.5 px-0 justify-center" : "py-1.5 px-3"
+            }`}
           >
             <Avatar initials={user?.initials ?? "??"} size={26} color="#7C6FFF" />
             {!collapsed && (
-              <div style={{ textAlign: "left", whiteSpace: "nowrap" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink)" }}>{user?.name ?? "User"}</div>
-                <div style={{ fontSize: 10, color: "var(--color-ink3)" }}>{user?.role ?? "Admin"}</div>
+              <div className="text-left whitespace-nowrap">
+                <div className="text-xs font-semibold text-ink">{user?.name ?? "User"}</div>
+                <div className="text-[10px] text-ink3">{user?.role ?? "Admin"}</div>
               </div>
             )}
           </button>

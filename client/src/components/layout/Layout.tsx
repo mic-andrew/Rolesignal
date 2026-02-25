@@ -22,7 +22,7 @@ export function Layout() {
       <Sidebar />
       <div className="flex flex-col flex-1 min-h-screen min-w-0">
         <Header title={title} />
-        <main className="flex-1 overflow-auto" style={{ padding: 28 }}>
+        <main className="flex-1 overflow-auto p-6">
           <Outlet />
         </main>
       </div>

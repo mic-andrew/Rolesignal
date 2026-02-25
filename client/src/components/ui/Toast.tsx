@@ -8,10 +8,16 @@ const ICON_MAP = {
   error: RiErrorWarningLine,
 };
 
-const COLOR_MAP = {
-  success: "var(--color-success)",
-  warning: "var(--color-warn)",
-  error: "#EF4444",
+const BORDER_CLASSES = {
+  success: "border-success",
+  warning: "border-warn",
+  error: "border-[#EF4444]",
+};
+
+const ICON_CLASSES = {
+  success: "text-success",
+  warning: "text-warn",
+  error: "text-[#EF4444]",
 };
 
 export function Toast() {
@@ -27,42 +33,18 @@ export function Toast() {
   if (!toast.visible) return null;
 
   const Icon = ICON_MAP[toast.variant];
-  const color = COLOR_MAP[toast.variant];
 
   return (
     <div
-      className="animate-fade-in"
-      style={{
-        position: "fixed",
-        top: 20,
-        right: 20,
-        zIndex: 9999,
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "12px 16px",
-        background: "var(--color-layer)",
-        border: `1px solid ${color}`,
-        borderRadius: 10,
-        boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-        minWidth: 280,
-        maxWidth: 420,
-      }}
+      className={`animate-fade-in fixed top-5 right-5 z-9999 flex items-center gap-2.5 px-4 py-3 bg-layer border rounded-[10px] shadow-[0_8px_24px_rgba(0,0,0,0.15)] min-w-[280px] max-w-[420px] ${BORDER_CLASSES[toast.variant]}`}
     >
-      <Icon size={18} style={{ color, flexShrink: 0 }} />
-      <span className="flex-1" style={{ fontSize: 13, fontWeight: 500, color: "var(--color-ink)" }}>
+      <Icon size={18} className={`shrink-0 ${ICON_CLASSES[toast.variant]}`} />
+      <span className="flex-1 text-[13px] font-medium text-ink">
         {toast.message}
       </span>
       <button
         onClick={dismiss}
-        className="shrink-0 cursor-pointer"
-        style={{
-          background: "transparent",
-          border: "none",
-          color: "var(--color-ink3)",
-          padding: 2,
-          display: "flex",
-        }}
+        className="shrink-0 cursor-pointer bg-transparent border-none text-ink3 p-0.5 flex"
       >
         <RiCloseLine size={16} />
       </button>

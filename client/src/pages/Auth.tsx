@@ -41,16 +41,7 @@ function MicrosoftIcon() {
   );
 }
 
-const fieldStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "11px 14px",
-  background: "var(--color-layer)",
-  border: "1px solid var(--color-edge)",
-  borderRadius: 8,
-  color: "var(--color-ink)",
-  fontSize: 13,
-  outline: "none",
-};
+const fieldClasses = "w-full px-3.5 py-[11px] bg-[var(--color-layer)] border border-[var(--color-edge)] rounded-lg text-[var(--color-ink)] text-[13px] outline-none";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -84,103 +75,92 @@ export default function Auth() {
   const error = loginError || registerError;
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "var(--color-canvas)" }}>
+    <div className="flex min-h-screen bg-[var(--color-canvas)]">
       {/* Brand panel */}
       <div
-        style={{
-          flex: "0 0 50%",
-          background: "linear-gradient(160deg, var(--color-canvas) 0%, #0E0E22 40%, #12123A 100%)",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          padding: "48px 56px",
-          position: "relative",
-          overflow: "hidden",
-        }}
+        className="flex-[0_0_50%] bg-[linear-gradient(160deg,var(--color-canvas)_0%,#0E0E22_40%,#12123A_100%)] flex flex-col justify-between p-[48px_56px] relative overflow-hidden"
       >
-        <div style={{ position: "absolute", top: "50%", left: "35%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(124,111,255,0.06), transparent 70%)", transform: "translate(-50%,-50%)" }} />
+        <div className="absolute top-1/2 left-[35%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(124,111,255,0.06),transparent_70%)] -translate-x-1/2 -translate-y-1/2" />
         {[0,1,2,3,4].map((i) => (
           <div
             key={i}
-            className="absolute rounded-full animate-breathe"
+            className="absolute rounded-full animate-breathe top-1/2 left-[35%] -translate-x-1/2 -translate-y-1/2"
             style={{
               width: 160 + i * 120, height: 160 + i * 120,
               border: `1px solid rgba(124,111,255,${0.04 - i * 0.005})`,
-              top: "50%", left: "35%",
-              transform: "translate(-50%,-50%)",
               animationDelay: `${i * 0.4}s`,
             }}
           />
         ))}
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div className="flex items-center animate-fade-in" style={{ gap: 10, marginBottom: 72 }}>
+        <div className="relative z-[1]">
+          <div className="flex items-center animate-fade-in gap-2.5 mb-[72px]">
             <Logo />
-            <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--color-ink)" }}>RoleSignal</span>
+            <span className="text-xl font-extrabold tracking-[-0.03em] text-[var(--color-ink)]">RoleSignal</span>
           </div>
-          <h1 className="animate-fade-in delay-2" style={{ fontSize: 46, fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.04em", maxWidth: 440 }}>
+          <h1 className="animate-fade-in delay-2 text-[46px] font-extrabold leading-[1.1] tracking-[-0.04em] max-w-[440px]">
             Autonomous AI{" "}
-            <span style={{ background: "linear-gradient(135deg, var(--color-brand), var(--color-brand2))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span className="bg-[linear-gradient(135deg,var(--color-brand),var(--color-brand2))] bg-clip-text text-transparent">
               Interviewer
             </span>
           </h1>
-          <p className="animate-fade-in delay-3" style={{ fontSize: 16, color: "var(--color-ink2)", marginTop: 20, maxWidth: 400, lineHeight: 1.7, fontWeight: 400 }}>
+          <p className="animate-fade-in delay-3 text-base text-[var(--color-ink2)] mt-5 max-w-[400px] leading-[1.7] font-normal">
             Replace manual screening calls with structured, real-time AI interviews that produce explainable hiring intelligence.
           </p>
         </div>
-        <div className="flex items-center animate-fade-in delay-5" style={{ position: "relative", zIndex: 1, gap: 12 }}>
+        <div className="flex items-center animate-fade-in delay-5 relative z-[1] gap-3">
           {[{ i: "SC", c: "#7C6FFF" }, { i: "MJ", c: "#22C997" }, { i: "PP", c: "#FFAD33" }].map((a) => (
             <Avatar key={a.i} initials={a.i} size={28} color={a.c} />
           ))}
-          <span style={{ fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}>2,400+ interviews conducted</span>
+          <span className="text-xs text-[var(--color-ink3)] font-medium">2,400+ interviews conducted</span>
         </div>
       </div>
 
       {/* Form panel */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 48, background: "var(--color-canvas)" }}>
-        <form onSubmit={handleSubmit} style={{ width: "100%", maxWidth: 380 }} className="animate-fade-in delay-3">
-          <h2 style={{ fontSize: 28, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6, color: "var(--color-ink)" }}>
+      <div className="flex-1 flex items-center justify-center p-12 bg-[var(--color-canvas)]">
+        <form onSubmit={handleSubmit} className="w-full max-w-[380px] animate-fade-in delay-3">
+          <h2 className="text-[28px] font-extrabold tracking-[-0.03em] mb-1.5 text-[var(--color-ink)]">
             {mode === "login" ? "Welcome back" : "Get started"}
           </h2>
-          <p style={{ fontSize: 14, color: "var(--color-ink3)", marginBottom: 32, fontWeight: 400 }}>
+          <p className="text-sm text-[var(--color-ink3)] mb-8 font-normal">
             {mode === "login" ? "Sign in to your workspace" : "Create your account to begin"}
           </p>
 
-          <div style={{ display: "flex", gap: 10, marginBottom: 24 }}>
+          <div className="flex gap-2.5 mb-6">
             {[{ label: "Google", icon: <GoogleIcon /> }, { label: "Microsoft", icon: <MicrosoftIcon /> }].map(({ label, icon }) => (
-              <Button key={label} variant="ghost" className="flex-1 justify-center" style={{ padding: "11px 0", gap: 8 }} type="button">
+              <Button key={label} variant="ghost" className="flex-1 justify-center py-[11px] gap-2" type="button">
                 {icon}<span>{label}</span>
               </Button>
             ))}
           </div>
 
-          <div className="flex items-center" style={{ gap: 16, marginBottom: 24 }}>
-            <div style={{ flex: 1, height: 1, background: "var(--color-edge)" }} />
-            <span style={{ fontSize: 11, color: "var(--color-ink3)", fontWeight: 500 }}>or with email</span>
-            <div style={{ flex: 1, height: 1, background: "var(--color-edge)" }} />
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex-1 h-px bg-[var(--color-edge)]" />
+            <span className="text-[11px] text-[var(--color-ink3)] font-medium">or with email</span>
+            <div className="flex-1 h-px bg-[var(--color-edge)]" />
           </div>
 
           {mode === "signup" && (
             <>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Full Name</label>
-                <input style={fieldStyle} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
+              <div className="mb-3.5">
+                <label className="text-xs font-semibold text-[var(--color-ink2)] block mb-1.5">Full Name</label>
+                <input className={fieldClasses} placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
-              <div style={{ marginBottom: 14 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Organization</label>
-                <input style={fieldStyle} placeholder="Acme Inc." value={orgName} onChange={(e) => setOrgName(e.target.value)} required />
+              <div className="mb-3.5">
+                <label className="text-xs font-semibold text-[var(--color-ink2)] block mb-1.5">Organization</label>
+                <input className={fieldClasses} placeholder="Acme Inc." value={orgName} onChange={(e) => setOrgName(e.target.value)} required />
               </div>
             </>
           )}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Email</label>
-            <input type="email" style={fieldStyle} placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
+          <div className="mb-3.5">
+            <label className="text-xs font-semibold text-[var(--color-ink2)] block mb-1.5">Email</label>
+            <input type="email" className={fieldClasses} placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required />
           </div>
-          <div style={{ marginBottom: 28 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--color-ink2)", display: "block", marginBottom: 6 }}>Password</label>
-            <div style={{ position: "relative" }}>
+          <div className="mb-7">
+            <label className="text-xs font-semibold text-[var(--color-ink2)] block mb-1.5">Password</label>
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                style={{ ...fieldStyle, paddingRight: 40 }}
+                className={`${fieldClasses} pr-10`}
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -190,11 +170,7 @@ export default function Auth() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                style={{
-                  position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
-                  background: "none", border: "none", cursor: "pointer",
-                  color: "var(--color-ink3)", padding: 4, display: "flex",
-                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[var(--color-ink3)] p-1 flex"
               >
                 {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
               </button>
@@ -202,7 +178,7 @@ export default function Auth() {
           </div>
 
           {error && (
-            <p style={{ fontSize: 12, color: "#EF4444", marginBottom: 14 }}>
+            <p className="text-xs text-[#EF4444] mb-3.5">
               {(error as Error & { response?: { data?: { detail?: string } } })?.response?.data?.detail || "Something went wrong"}
             </p>
           )}
@@ -218,10 +194,10 @@ export default function Auth() {
             )}
           </Button>
 
-          <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "var(--color-ink3)" }}>
+          <p className="text-center mt-5 text-[13px] text-[var(--color-ink3)]">
             {mode === "login" ? "No account? " : "Have an account? "}
             <span
-              style={{ color: "var(--color-brand)", cursor: "pointer", fontWeight: 600 }}
+              className="text-[var(--color-brand)] cursor-pointer font-semibold"
               onClick={() => switchMode(mode === "login" ? "signup" : "login")}
             >
               {mode === "login" ? "Sign up" : "Sign in"}

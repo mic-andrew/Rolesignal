@@ -13,18 +13,17 @@ const FILTER_OPTS: Array<{ label: string; value: AuditEventType | "all" }> = [
 ];
 
 const TYPE_CONFIG = {
-  ai:     { bg: "var(--acg)",  color: "var(--color-brand2)", label: "AI Decision"   },
-  human:  { bg: "var(--grg)",  color: "var(--color-success)", label: "Human Action" },
-  system: { bg: "var(--amg)",  color: "var(--color-warn)",   label: "System"        },
+  ai:     { bgClass: "bg-(--acg)",  textClass: "text-brand2", label: "AI Decision"   },
+  human:  { bgClass: "bg-(--grg)",  textClass: "text-success", label: "Human Action" },
+  system: { bgClass: "bg-(--amg)",  textClass: "text-warn",   label: "System"        },
 };
 
 export default function Audit() {
   const { events, isLoading, filter, setFilter, selectedEvent, setSelectedEventId, reasoningSteps } = useAudit();
 
   return (
-    <div>
-      {/* Toolbar */}
-      <div className="flex items-center animate-fade-in" style={{ gap: 8, marginBottom: 20 }}>
+    <div className="space-y-5">
+      <div className="flex items-center gap-2 animate-fade-in">
         {FILTER_OPTS.map(({ label, value }) => (
           <Button
             key={value}
@@ -35,16 +34,14 @@ export default function Audit() {
             {label}
           </Button>
         ))}
-        <div style={{ flex: 1 }} />
+        <div className="flex-1" />
         <Button variant="ghost" size="sm">
           <RiDownloadLine size={14} />Export Report
         </Button>
       </div>
 
-      {/* Content */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 20 }}>
-        {/* Event timeline */}
-        <div>
+      <div className="grid grid-cols-[1fr_360px] gap-5">
+        <div className="space-y-2.5">
           {isLoading ? (
             <LoadingSkeleton rows={5} />
           ) : (
@@ -57,25 +54,19 @@ export default function Audit() {
                   glow
                   padding="p-0"
                   onClick={() => setSelectedEventId(ev.id)}
-                  className={`animate-fade-in delay-${Math.min(i + 1, 5) as 1|2|3|4|5}`}
-                  style={{
-                    padding: "16px 20px",
-                    marginBottom: 8,
-                    border: isSelected ? "1px solid rgba(124,111,255,0.3)" : undefined,
-                    boxShadow: isSelected ? "var(--shac)" : undefined,
-                  }}
+                  className={`px-5 py-4 animate-fade-in delay-${Math.min(i + 1, 5) as 1|2|3|4|5} ${isSelected ? "border-[rgba(124,111,255,0.3)] shadow-(--shac)" : ""}`}
                 >
-                  <div className="flex" style={{ gap: 12 }}>
-                    <span style={{ fontSize: 18, lineHeight: "20px", flexShrink: 0 }}>{ev.emoji}</span>
-                    <div style={{ flex: 1 }}>
-                      <div className="flex items-start justify-between" style={{ gap: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--color-ink)" }}>{ev.action}</div>
-                        <span style={{ fontSize: 11, fontFamily: "var(--font-family-mono)", color: "var(--color-ink3)", fontWeight: 500, flexShrink: 0 }}>{ev.time}</span>
+                  <div className="flex gap-3">
+                    <span className="text-lg leading-5 shrink-0">{ev.emoji}</span>
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="text-sm font-semibold text-ink">{ev.action}</div>
+                        <span className="text-[11px] font-mono text-ink3 font-medium shrink-0">{ev.time}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--color-ink3)", marginTop: 4 }}>{ev.detail}</div>
-                      <div style={{ marginTop: 8 }}>
+                      <div className="text-xs text-ink3 mt-1">{ev.detail}</div>
+                      <div className="mt-2">
                         <span
-                          style={{ display: "inline-flex", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: cfg.bg, color: cfg.color }}
+                          className={`inline-flex px-2.5 py-[3px] rounded-full text-[11px] font-semibold ${cfg.bgClass} ${cfg.textClass}`}
                         >
                           {cfg.label}
                         </span>
@@ -88,41 +79,37 @@ export default function Audit() {
           )}
         </div>
 
-        {/* AI reasoning trace */}
-        <Card padding="p-0" className="animate-fade-in delay-4" style={{ alignSelf: "flex-start", position: "sticky", top: 20 }}>
-          <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--color-edge)" }}>
-            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--color-ink)" }}>AI Reasoning Trace</span>
+        <Card padding="p-0" className="self-start sticky top-5 animate-fade-in delay-4">
+          <div className="px-5 py-4 border-b border-edge">
+            <span className="text-sm font-bold text-ink">AI Reasoning Trace</span>
           </div>
-          <div style={{ padding: 20 }}>
+          <div className="p-5">
             {selectedEvent?.type === "ai" ? (
               <>
-                <p style={{ fontSize: 12, color: "var(--color-ink3)", marginBottom: 16 }}>
-                  Reasoning chain for: <span style={{ fontWeight: 600, color: "var(--color-ink2)" }}>{selectedEvent.action}</span>
+                <p className="text-xs text-ink3 mb-4">
+                  Reasoning chain for: <span className="font-semibold text-ink2">{selectedEvent.action}</span>
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div className="flex flex-col gap-3.5">
                   {reasoningSteps.map((step, i) => (
-                    <div key={step.label} className="flex" style={{ gap: 12 }}>
+                    <div key={step.label} className="flex gap-3">
                       <div className="flex flex-col items-center">
-                        <div
-                          className="flex items-center justify-center shrink-0"
-                          style={{ width: 26, height: 26, borderRadius: "50%", fontSize: 11, fontWeight: 800, color: "var(--color-brand)", background: "var(--acg)" }}
-                        >
+                        <div className="flex items-center justify-center shrink-0 w-[26px] h-[26px] rounded-full text-[11px] font-extrabold text-brand bg-(--acg)">
                           {i + 1}
                         </div>
                         {i < reasoningSteps.length - 1 && (
-                          <div style={{ width: 1, flex: 1, marginTop: 4, background: "var(--color-edge)" }} />
+                          <div className="w-px flex-1 mt-1 bg-edge" />
                         )}
                       </div>
-                      <div style={{ paddingBottom: 8 }}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-ink)", marginBottom: 3 }}>{step.label}</div>
-                        <div style={{ fontSize: 12, color: "var(--color-ink3)", lineHeight: 1.6 }}>{step.detail}</div>
+                      <div className="pb-2">
+                        <div className="text-[13px] font-bold text-ink mb-[3px]">{step.label}</div>
+                        <div className="text-xs text-ink3 leading-[1.6]">{step.detail}</div>
                       </div>
                     </div>
                   ))}
                 </div>
               </>
             ) : (
-              <p style={{ fontSize: 12, color: "var(--color-ink3)" }}>Select an AI Decision event to view its reasoning chain.</p>
+              <p className="text-xs text-ink3">Select an AI Decision event to view its reasoning chain.</p>
             )}
           </div>
         </Card>
