@@ -28,6 +28,14 @@ export interface RoleCreatePayload {
   }>;
 }
 
+export interface ParsedCriterion {
+  name: string;
+  description: string;
+  weight: number;
+  questionCount: number;
+  color: string;
+}
+
 export const rolesApi = {
   list: () =>
     client
@@ -40,4 +48,17 @@ export const rolesApi = {
   update: (id: string, payload: Partial<Role>) =>
     client.put<Role>(`/api/roles/${id}`, payload).then((r) => r.data),
   delete: (id: string) => client.delete(`/api/roles/${id}`),
+  uploadJd: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return client
+      .post<{ text: string }>("/api/roles/upload-jd", form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data.text);
+  },
+  extractCriteria: (text: string) =>
+    client
+      .post<{ criteria: ParsedCriterion[] }>("/api/roles/extract-criteria", { text })
+      .then((r) => r.data.criteria),
 };

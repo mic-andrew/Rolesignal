@@ -8,7 +8,7 @@ import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 
 const METRIC_CONFIG = [
-  { key: "activeRoles",        label: "Live Interviews",      color: "var(--color-brand)"   },
+  { key: "activeRoles",        label: "Active Interviews",     color: "var(--color-brand)"   },
   { key: "interviewsThisWeek", label: "Interviews This Week", color: "var(--color-success)" },
   { key: "avgFitScore",        label: "Avg. Fit Score",       color: "var(--color-success)" },
   { key: "pendingReviews",     label: "Pending Reviews",      color: "var(--color-warn)"    },

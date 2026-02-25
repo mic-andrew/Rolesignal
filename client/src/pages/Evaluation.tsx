@@ -9,16 +9,27 @@ import { Button } from "../components/ui/Button";
 import { Avatar } from "../components/ui/Avatar";
 import { ScoreRing } from "../components/ui/ScoreRing";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
+import { EmptyState } from "../components/ui/EmptyState";
 
 export default function Evaluation() {
   const navigate = useNavigate();
   const { candidateId } = useParams<{ candidateId?: string }>();
   const {
-    evaluation, isLoading, expandedIndex, toggleExpanded,
+    evaluation, isLoading, error, expandedIndex, toggleExpanded,
     role, prevCandidate, nextCandidate,
   } = useEvaluation(candidateId ?? "1");
 
-  if (isLoading || !evaluation) return <LoadingSkeleton rows={5} />;
+  if (isLoading) return <LoadingSkeleton rows={5} />;
+
+  if (error || !evaluation) {
+    return (
+      <EmptyState
+        title="No evaluation available"
+        description="This candidate hasn't completed their interview yet. Evaluations are generated after the interview is finished."
+        action={{ label: "Back to Candidates", onClick: () => navigate("/candidates") }}
+      />
+    );
+  }
 
   const { candidate, confidence, criterionScores, transcript } = evaluation;
 

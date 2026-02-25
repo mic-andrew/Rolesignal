@@ -1,12 +1,20 @@
 """Candidate model."""
 
+from __future__ import annotations
+
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+
+if TYPE_CHECKING:
+    from app.models.evaluation import Evaluation
+    from app.models.interview import Interview
+    from app.models.role import InterviewRole
 
 
 class Candidate(Base):

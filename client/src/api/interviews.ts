@@ -25,6 +25,38 @@ export interface InterviewCreatePayload {
   config_adaptive?: boolean;
 }
 
+export interface LaunchPayload {
+  title: string;
+  department: string;
+  seniority: string;
+  description?: string;
+  criteria: Array<{
+    name: string;
+    description: string;
+    weight: number;
+    question_count: number;
+    color: string;
+  }>;
+  candidates: Array<{ name: string; email: string }>;
+  config_duration: number;
+  config_tone: string;
+  config_adaptive: boolean;
+}
+
+export interface LaunchInterviewItem {
+  id: string;
+  candidateName: string;
+  candidateEmail: string;
+  link: string;
+  emailSent: boolean;
+}
+
+export interface LaunchResponse {
+  roleId: string;
+  interviews: LaunchInterviewItem[];
+  message: string;
+}
+
 export const interviewsApi = {
   list: (roleId?: string, status?: string) =>
     client
@@ -37,6 +69,10 @@ export const interviewsApi = {
   create: (payload: InterviewCreatePayload) =>
     client
       .post<InterviewResponse>("/api/interviews", payload)
+      .then((r) => r.data),
+  launch: (payload: LaunchPayload) =>
+    client
+      .post<LaunchResponse>("/api/interviews/launch", payload)
       .then((r) => r.data),
   complete: (id: string) => client.post(`/api/interviews/${id}/complete`),
   live: () =>

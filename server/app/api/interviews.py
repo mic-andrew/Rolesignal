@@ -10,6 +10,8 @@ from app.schemas.common import MessageResponse
 from app.schemas.interviews import (
     InterviewCreateRequest,
     InterviewDetailResponse,
+    InterviewLaunchRequest,
+    InterviewLaunchResponse,
     InterviewListResponse,
     InterviewResponse,
     LiveCountResponse,
@@ -63,12 +65,33 @@ async def create_interview(
     )
 
 
-@router.post("/{interview_id}/complete", response_model=MessageResponse)
+@router.post(
+    "/launch",
+    response_model=InterviewLaunchResponse,
+    status_code=201,
+)
+async def launch_interviews(
+    payload: InterviewLaunchRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> InterviewLaunchResponse:
+    """Create role + candidates + interviews and send emails."""
+    return await interview_service.launch_interviews(
+        db, user.organization_id, user.id, payload
+    )
+
+
+@router.post(
+    "/{interview_id}/complete",
+    response_model=MessageResponse,
+)
 async def complete_interview(
     interview_id: str,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> MessageResponse:
     """Mark an interview as completed."""
-    await interview_service.complete_interview(db, user.organization_id, interview_id)
+    await interview_service.complete_interview(
+        db, user.organization_id, interview_id
+    )
     return MessageResponse(message="Interview completed")

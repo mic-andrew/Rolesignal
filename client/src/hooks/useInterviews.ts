@@ -23,8 +23,8 @@ export function useInterviews() {
     staleTime: 30_000,
   });
 
-  const interviews = interviewsQuery.data ?? [];
-  const roles = rolesQuery.data ?? [];
+  const interviews = useMemo(() => interviewsQuery.data ?? [], [interviewsQuery.data]);
+  const roles = useMemo(() => rolesQuery.data ?? [], [rolesQuery.data]);
 
   const filtered = useMemo(() => {
     return interviews.filter((i: InterviewResponse) => {

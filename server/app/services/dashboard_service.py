@@ -54,9 +54,11 @@ async def get_dashboard(db: AsyncSession, org_id: uuid.UUID) -> DashboardRespons
 
 async def _compute_metrics(db: AsyncSession, org_id: uuid.UUID) -> DashboardMetrics:
     active_roles = await db.scalar(
-        select(func.count(InterviewRole.id)).where(
-            InterviewRole.organization_id == org_id,
-            InterviewRole.status == "live",
+        select(func.count(Interview.id)).where(
+            Interview.organization_id == org_id,
+            Interview.status.in_(
+                ["pending", "in_progress"]
+            ),
         )
     ) or 0
 
