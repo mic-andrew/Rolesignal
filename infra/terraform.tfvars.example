@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# This file is gitignored — never commit it.
+
+db_password = "your-strong-database-password-here"
+alert_email = "your-email@example.com"
+github_repo = "mic-andrew/Rolesignal"
