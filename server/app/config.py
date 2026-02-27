@@ -34,6 +34,21 @@ class Settings(BaseSettings):
     resend_from_email: str = "RoleSignal <noreply@rolesignal.com>"
     resend_template_id: str = ""
 
+    # LLM (model-agnostic)
+    llm_provider: str = "openai"
+    llm_model: str = "gpt-4o-mini"
+    llm_temperature: float = 0.3
+    llm_max_tokens: int = 4096
+    llm_timeout: int = 60
+
+    # OpenAI credentials
+    openai_api_key: str = ""
+
+    # OpenAI Realtime — Voice interviews (separate key)
+    openai_realtime_api_key: str = ""
+    openai_realtime_model: str = "gpt-4o-mini-realtime-preview"
+    openai_realtime_voice: str = "alloy"
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 
 

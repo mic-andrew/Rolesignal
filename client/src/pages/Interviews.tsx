@@ -1,8 +1,18 @@
 import { useNavigate } from "react-router-dom";
-import { RiSearchLine, RiAddLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiBriefcaseLine,
+  RiTimeLine,
+  RiGroupLine,
+  RiArrowRightSLine,
+} from "react-icons/ri";
 import { useInterviews } from "../hooks/useInterviews";
-import { InterviewCard } from "../components/shared/InterviewCard";
+import type { RoleGroup } from "../hooks/useInterviews";
+import { SearchInput } from "../components/shared/SearchInput";
+import { StatCard } from "../components/ui/StatCard";
+import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
+import { Card } from "../components/ui/Card";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 import { EmptyState } from "../components/ui/EmptyState";
 
@@ -15,49 +25,100 @@ const STATUS_FILTERS: Array<{ label: string; value: StatusFilter }> = [
   { label: "Completed",   value: "completed"   },
 ];
 
+const STAT_CONFIG = [
+  { key: "total",      label: "Total Roles",     color: "var(--color-ink)"     },
+  { key: "pending",    label: "Pending",          color: "var(--color-warn)"    },
+  { key: "inProgress", label: "In Progress",      color: "var(--color-brand)"   },
+  { key: "completed",  label: "Completed",        color: "var(--color-success)" },
+] as const;
+
+interface RoleCardProps {
+  group: RoleGroup;
+  index: number;
+  onClick: () => void;
+}
+
+function RoleInterviewCard({ group, index, onClick }: RoleCardProps) {
+  const total = group.candidates.length;
+
+  return (
+    <Card
+      glow
+      padding="p-0"
+      onClick={onClick}
+      className={`animate-fade-in delay-${Math.min(index + 1, 10)} px-6 py-5 cursor-pointer transition-all hover:scale-[1.01]`}
+    >
+      <div className="flex items-start gap-3.5 mb-4">
+        <div className="flex items-center justify-center text-brand w-10 h-10 rounded-[10px] bg-(--acg) shrink-0 mt-0.5">
+          <RiBriefcaseLine size={18} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] font-bold text-ink overflow-hidden text-ellipsis whitespace-nowrap">
+            {group.roleTitle}
+          </div>
+          <div className="text-[13px] text-ink3 mt-0.5">
+            {group.department}
+          </div>
+        </div>
+        <RiArrowRightSLine size={18} className="text-ink3 shrink-0 mt-1" />
+      </div>
+
+      <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-1.5 text-ink3">
+          <RiGroupLine size={14} />
+          <span className="text-[13px] font-medium">
+            {total} candidate{total !== 1 ? "s" : ""}
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-ink3">
+          <RiTimeLine size={14} />
+          <span className="text-[13px] font-medium">
+            {group.configDuration}min &middot; {group.configTone}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2 pt-3 border-t border-edge">
+        {group.pending > 0 && (
+          <Badge variant="pending" label={`${group.pending} pending`} />
+        )}
+        {group.inProgress > 0 && (
+          <Badge variant="in_progress" label={`${group.inProgress} in progress`} />
+        )}
+        {group.completed > 0 && (
+          <Badge variant="completed" label={`${group.completed} completed`} />
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export default function Interviews() {
   const hook = useInterviews();
   const navigate = useNavigate();
 
   return (
-    <div>
-      {/* Stat bar */}
+    <div className="space-y-8">
       {!hook.isLoading && hook.stats.total > 0 && (
-        <div className="flex animate-fade-in" style={{ gap: 12, marginBottom: 20 }}>
-          {([
-            { label: "Total", value: hook.stats.total, color: "var(--color-ink)" },
-            { label: "Pending", value: hook.stats.pending, color: "var(--color-warn)" },
-            { label: "In Progress", value: hook.stats.inProgress, color: "var(--color-brand)" },
-            { label: "Completed", value: hook.stats.completed, color: "var(--color-success)" },
-          ] as const).map((s) => (
-            <div
-              key={s.label}
-              style={{
-                flex: 1, padding: "14px 18px", borderRadius: 12,
-                background: "var(--color-layer)", border: "1px solid var(--color-edge)",
-              }}
-            >
-              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--color-ink3)", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: s.color, fontFamily: "var(--font-family-mono)" }}>{s.value}</div>
-            </div>
+        <div className="grid grid-cols-4 gap-5">
+          {STAT_CONFIG.map(({ key, label, color }, i) => (
+            <StatCard
+              key={key}
+              label={label}
+              value={hook.stats[key]}
+              accentColor={color}
+              animationDelay={i + 1}
+            />
           ))}
         </div>
       )}
 
-      {/* Search + filters + Send button */}
-      <div className="flex items-center animate-fade-in" style={{ gap: 10, marginBottom: 20 }}>
-        <div
-          className="flex items-center flex-1"
-          style={{ gap: 8, padding: "7px 16px", background: "var(--color-layer)", border: "1px solid var(--color-edge)", borderRadius: 8 }}
-        >
-          <RiSearchLine size={16} className="text-ink3 shrink-0" />
-          <input
-            value={hook.search}
-            onChange={(e) => hook.setSearch(e.target.value)}
-            placeholder="Search by candidate name..."
-            style={{ flex: 1, fontSize: 13, color: "var(--color-ink)", background: "transparent", border: "none", outline: "none" }}
-          />
-        </div>
+      <div className="flex items-center gap-3 animate-fade-in">
+        <SearchInput
+          value={hook.search}
+          onChange={hook.setSearch}
+          placeholder="Search by role or candidate..."
+        />
 
         {STATUS_FILTERS.map(({ label, value }) => (
           <Button
@@ -76,49 +137,28 @@ export default function Interviews() {
         </Button>
       </div>
 
-      {/* Role filter */}
-      {hook.roles.length > 1 && (
-        <div className="flex items-center animate-fade-in" style={{ gap: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 12, color: "var(--color-ink3)", fontWeight: 500 }}>Role:</span>
-          <Button
-            variant={hook.roleFilter === "all" ? "primary" : "ghost"}
-            size="sm"
-            onClick={() => hook.setRoleFilter("all")}
-          >
-            All
-          </Button>
-          {hook.roles.map((r) => (
-            <Button
-              key={r.id}
-              variant={hook.roleFilter === r.id ? "primary" : "ghost"}
-              size="sm"
-              onClick={() => hook.setRoleFilter(r.id)}
-            >
-              {r.title}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {/* Content */}
       {hook.isLoading ? (
         <LoadingSkeleton rows={4} />
-      ) : hook.interviews.length === 0 && hook.stats.total === 0 ? (
+      ) : hook.roleGroups.length === 0 && hook.interviews.length === 0 ? (
         <EmptyState
           title="No interviews yet"
           description="Create your first interview to start evaluating candidates."
           action={{ label: "Create Interview", onClick: () => navigate("/setup") }}
         />
-      ) : hook.interviews.length === 0 ? (
+      ) : hook.roleGroups.length === 0 ? (
         <EmptyState title="No interviews match your filters" description="Try adjusting your search or filters." />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14 }}>
-          {hook.interviews.map((interview, i) => (
-            <InterviewCard key={interview.id} interview={interview} index={i} />
+        <div className="grid grid-cols-3 gap-5">
+          {hook.roleGroups.map((group, i) => (
+            <RoleInterviewCard
+              key={group.roleId}
+              group={group}
+              index={i}
+              onClick={() => navigate(`/interviews/${group.roleId}`)}
+            />
           ))}
         </div>
       )}
-
     </div>
   );
 }

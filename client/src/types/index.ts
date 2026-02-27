@@ -73,6 +73,13 @@ export interface DashboardMetrics {
 }
 
 // ── Interview setup ───────────────────────────────────────────────────────────
+export interface SubCriterion {
+  id: string;
+  name: string;
+  description: string;
+  weight: number;
+}
+
 export interface Criterion {
   id: string;
   name: string;
@@ -80,6 +87,7 @@ export interface Criterion {
   weight: number;
   questionCount: number;
   color: string;
+  subCriteria: SubCriterion[];
 }
 
 export interface InterviewConfig {
@@ -109,12 +117,22 @@ export interface InterviewQuestion {
 }
 
 // ── Evaluation ────────────────────────────────────────────────────────────────
+export interface SubCriterionScore {
+  name: string;
+  score: number;
+  rationale: string;
+  evidence: string[];
+  weight: number;
+}
+
 export interface CriterionScore {
   name: string;
   score: number;
   rationale: string;
   evidence: string[];
   riskFlags: string[];
+  weight: number;
+  subCriterionScores: SubCriterionScore[];
 }
 
 export interface CandidateEvaluation {
@@ -122,6 +140,24 @@ export interface CandidateEvaluation {
   confidence: number;
   criterionScores: CriterionScore[];
   transcript: TranscriptMessage[];
+}
+
+export interface CriteriaTemplate {
+  id: string;
+  name: string;
+  description: string;
+  criteria: Array<{
+    name: string;
+    description: string;
+    weight: number;
+    subCriteria: Array<{
+      name: string;
+      description: string;
+      weight: number;
+    }>;
+  }>;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ── Audit ─────────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import type { ReactNode, MouseEvent, CSSProperties } from "react";
+import type { ReactNode, MouseEvent } from "react";
 
 type ButtonVariant = "primary" | "ghost" | "danger" | "success";
 type ButtonSize    = "sm" | "md" | "lg";
@@ -12,20 +12,19 @@ interface ButtonProps {
   type?: "button" | "submit" | "reset";
   className?: string;
   full?: boolean;
-  style?: CSSProperties;
 }
 
-const SIZES: Record<ButtonSize, CSSProperties> = {
-  sm: { padding: "6px 14px", fontSize: 12 },
-  md: { padding: "10px 20px", fontSize: 13 },
-  lg: { padding: "13px 28px", fontSize: 14 },
+const SIZE_CLASSES: Record<ButtonSize, string> = {
+  sm: "px-3.5 py-1.5 text-xs",
+  md: "px-5 py-2.5 text-[13px]",
+  lg: "px-7 py-3.5 text-sm",
 };
 
-const VARIANTS: Record<ButtonVariant, CSSProperties> = {
-  primary: {},
-  ghost:   { background: "transparent", color: "var(--color-ink2)", border: "1px solid var(--color-edge)" },
-  danger:  { background: "var(--rdg)", color: "var(--color-danger)", border: "1px solid rgba(255,90,90,0.2)" },
-  success: { background: "var(--grg)", color: "var(--color-success)", border: "1px solid rgba(34,201,151,0.2)" },
+const VARIANT_CLASSES: Record<ButtonVariant, string> = {
+  primary: "text-white border-none",
+  ghost:   "bg-transparent text-ink2 border border-edge hover:bg-layer",
+  danger:  "bg-[var(--rdg)] text-danger border border-[rgba(255,90,90,0.2)]",
+  success: "bg-[var(--grg)] text-success border border-[rgba(34,201,151,0.2)]",
 };
 
 export function Button({
@@ -37,33 +36,13 @@ export function Button({
   type = "button",
   className = "",
   full,
-  style,
 }: ButtonProps) {
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`${variant === "primary" ? "btn-primary" : ""} ${full ? "w-full" : ""} ${className}`}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 8,
-        borderRadius: 8,
-        fontWeight: 600,
-        cursor: disabled ? "not-allowed" : "pointer",
-        border: "none",
-        transition: "all 0.2s cubic-bezier(0.16,1,0.3,1)",
-        outline: "none",
-        letterSpacing: "-0.01em",
-        flexShrink: 0,
-        opacity: disabled ? 0.5 : 1,
-        color: variant === "primary" ? "#fff" : undefined,
-        ...SIZES[size],
-        ...VARIANTS[variant],
-        ...style,
-      }}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 outline-none tracking-tight shrink-0 ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer opacity-100"} ${variant === "primary" ? "btn-primary" : ""} ${SIZE_CLASSES[size]} ${VARIANT_CLASSES[variant]} ${full ? "w-full" : ""} ${className}`}
     >
       {children}
     </button>

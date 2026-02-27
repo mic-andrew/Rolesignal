@@ -4,12 +4,22 @@ from app.schemas.base import CamelModel
 from app.schemas.candidates import CandidateResponse, CandidateSkills
 
 
+class SubCriterionScoreResponse(CamelModel):
+    name: str
+    score: float
+    rationale: str
+    evidence: list[str]
+    weight: int
+
+
 class CriterionScoreResponse(CamelModel):
     name: str
     score: float
     rationale: str
     evidence: list[str]
     risk_flags: list[str]
+    weight: int = 0
+    sub_criterion_scores: list[SubCriterionScoreResponse] = []
 
 
 class TranscriptMessageResponse(CamelModel):

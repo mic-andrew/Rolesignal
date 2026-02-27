@@ -10,6 +10,7 @@ from app.api import (
     auth,
     audit,
     candidates,
+    criteria_library,
     dashboard,
     evaluations,
     interview_public,
@@ -72,6 +73,7 @@ app.include_router(candidates.router, prefix="/api")
 app.include_router(interviews.router, prefix="/api")
 app.include_router(evaluations.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
+app.include_router(criteria_library.router, prefix="/api")
 app.include_router(audit.router, prefix="/api")
 
 

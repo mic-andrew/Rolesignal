@@ -8,12 +8,14 @@ from app.database import get_db
 from app.models.user import User
 from app.schemas.common import MessageResponse
 from app.schemas.interviews import (
+    AddCandidateRequest,
     InterviewCreateRequest,
     InterviewDetailResponse,
     InterviewLaunchRequest,
     InterviewLaunchResponse,
     InterviewListResponse,
     InterviewResponse,
+    InterviewUpdateRequest,
     LiveCountResponse,
 )
 from app.services import interview_service
@@ -81,6 +83,19 @@ async def launch_interviews(
     )
 
 
+@router.delete("/{interview_id}", response_model=MessageResponse)
+async def delete_interview(
+    interview_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> MessageResponse:
+    """Delete an interview."""
+    await interview_service.delete_interview(
+        db, user.organization_id, user.id, interview_id
+    )
+    return MessageResponse(message="Interview deleted")
+
+
 @router.post(
     "/{interview_id}/complete",
     response_model=MessageResponse,
@@ -95,3 +110,36 @@ async def complete_interview(
         db, user.organization_id, interview_id
     )
     return MessageResponse(message="Interview completed")
+
+
+@router.patch(
+    "/{interview_id}",
+    response_model=InterviewResponse,
+)
+async def update_interview(
+    interview_id: str,
+    payload: InterviewUpdateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> InterviewResponse:
+    """Update interview configuration."""
+    return await interview_service.update_interview(
+        db, user.organization_id, interview_id, payload
+    )
+
+
+@router.post(
+    "/roles/{role_id}/candidates",
+    response_model=InterviewResponse,
+    status_code=201,
+)
+async def add_candidate_to_role(
+    role_id: str,
+    payload: AddCandidateRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> InterviewResponse:
+    """Add a candidate to an existing role and create their interview."""
+    return await interview_service.add_candidate_to_role(
+        db, user.organization_id, user.id, role_id, payload
+    )

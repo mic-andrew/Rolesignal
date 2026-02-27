@@ -19,7 +19,7 @@ export function ScoreRing({ value, size = 60, strokeWidth = 3.5 }: ScoreRingProp
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+      <svg width={size} height={size} className="-rotate-90">
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none" stroke="var(--color-edge)" strokeWidth={strokeWidth}
@@ -29,7 +29,7 @@ export function ScoreRing({ value, size = 60, strokeWidth = 3.5 }: ScoreRingProp
           fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
           strokeDasharray={circ}
           strokeDashoffset={offset}
-          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)" }}
+          className="transition-[stroke-dashoffset] duration-1200 ease-[cubic-bezier(0.16,1,0.3,1)]"
         />
       </svg>
       <div

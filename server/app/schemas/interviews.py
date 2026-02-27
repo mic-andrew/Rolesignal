@@ -58,12 +58,19 @@ class CandidateInput(BaseModel):
     email: str
 
 
+class SubCriterionInput(BaseModel):
+    name: str
+    description: str = ""
+    weight: int = 50
+
+
 class CriterionLaunchInput(BaseModel):
     name: str
     description: str = ""
     weight: int = 20
     question_count: int = 3
     color: str = "#7C6FFF"
+    sub_criteria: list[SubCriterionInput] = []
 
 
 class InterviewLaunchRequest(BaseModel):
@@ -92,3 +99,21 @@ class InterviewLaunchResponse(CamelModel):
     role_id: str
     interviews: list[LaunchInterviewItem]
     message: str
+
+
+class AddCandidateRequest(BaseModel):
+    """Add a candidate to an existing role and create their interview."""
+
+    name: str
+    email: str
+    config_duration: int = 30
+    config_tone: str = "Conversational"
+    config_adaptive: bool = True
+
+
+class InterviewUpdateRequest(BaseModel):
+    """Update interview configuration."""
+
+    config_duration: int | None = None
+    config_tone: str | None = None
+    config_adaptive: bool | None = None

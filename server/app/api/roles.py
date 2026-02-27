@@ -19,8 +19,8 @@ from app.schemas.roles import (
     RoleUpdateRequest,
 )
 from app.services import role_service
-from app.services.criteria_parser import extract_criteria
 from app.services.file_parser import extract_text
+from app.services import criteria_generator
 
 logger = logging.getLogger(__name__)
 
@@ -87,12 +87,19 @@ class ExtractedTextResponse(CamelModel):
     text: str
 
 
+class SubCriterionParsed(CamelModel):
+    name: str
+    description: str
+    weight: int
+
+
 class CriterionParsed(CamelModel):
     name: str
     description: str
     weight: int
     question_count: int
     color: str
+    sub_criteria: list[SubCriterionParsed] = []
 
 
 class ExtractCriteriaRequest(BaseModel):
@@ -129,7 +136,58 @@ async def extract_criteria_endpoint(
     payload: ExtractCriteriaRequest,
     _user: User = Depends(get_current_user),
 ) -> ExtractCriteriaResponse:
-    """Parse text into structured evaluation criteria."""
-    parsed = extract_criteria(payload.text)
-    criteria = [CriterionParsed(**c) for c in parsed]
+    """Extract structured evaluation criteria from text using LLM."""
+    try:
+        raw = await criteria_generator.generate_criteria_from_text(
+            payload.text
+        )
+        criteria = [
+            CriterionParsed(
+                name=c["name"],
+                description=c.get("description", ""),
+                weight=c.get("weight", 20),
+                question_count=3,
+                color="#7C6FFF",
+                sub_criteria=[
+                    SubCriterionParsed(
+                        name=s["name"],
+                        description=s.get("description", ""),
+                        weight=s.get("weight", 50),
+                    )
+                    for s in c.get("sub_criteria", [])
+                ],
+            )
+            for c in raw
+        ]
+    except Exception as exc:
+        exc_str = str(exc).lower()
+        if "rate" in exc_str and "limit" in exc_str:
+            logger.warning(
+                "llm_rate_limit during criteria extraction"
+            )
+            raise HTTPException(
+                status_code=429,
+                detail="LLM rate limit reached. "
+                "Please wait a moment and try again.",
+            ) from exc
+        if (
+            "authentication" in exc_str
+            or "api key" in exc_str
+            or "credential" in exc_str
+        ):
+            logger.error(
+                "llm_auth_error during criteria extraction"
+            )
+            raise HTTPException(
+                status_code=502,
+                detail="LLM credentials are invalid. "
+                "Check server configuration.",
+            ) from exc
+
+        logger.exception("llm_criteria_extraction_failed")
+        raise HTTPException(
+            status_code=502,
+            detail="Failed to generate criteria. "
+            "Please try again or enter criteria manually.",
+        ) from exc
     return ExtractCriteriaResponse(criteria=criteria)

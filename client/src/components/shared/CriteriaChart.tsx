@@ -7,39 +7,43 @@ interface CriteriaChartProps {
   criteria: CriterionBar[];
 }
 
-function barColor(v: number): string {
-  if (v >= 90) return "var(--color-success)";
-  if (v >= 80) return "var(--color-brand)";
-  return "var(--color-warn)";
+function barBgClass(v: number): string {
+  if (v >= 90) return "bg-success";
+  if (v >= 80) return "bg-brand";
+  return "bg-warn";
+}
+
+function barTextClass(v: number): string {
+  if (v >= 90) return "text-success";
+  if (v >= 80) return "text-brand";
+  return "text-warn";
+}
+
+function barShadowClass(v: number): string {
+  if (v >= 90) return "shadow-[0_0_8px_rgba(34,201,151,0.3)]";
+  return "shadow-[0_0_8px_rgba(124,111,255,0.3)]";
 }
 
 export function CriteriaChart({ criteria }: CriteriaChartProps) {
   return (
-    <div className="flex justify-between" style={{ gap: 12 }}>
-      {criteria.map((c, i) => {
-        const color = barColor(c.score);
-        return (
-          <div key={c.name} style={{ flex: 1, textAlign: "center" }}>
-            <div className="flex items-end justify-center" style={{ height: 70, marginBottom: 6 }}>
-              <div
-                className="animate-bar-fill"
-                style={{
-                  width: 24,
-                  borderRadius: "4px 4px 0 0",
-                  height: `${c.score * 0.7}px`,
-                  background: color,
-                  boxShadow: `0 0 8px ${color === "var(--color-success)" ? "rgba(34,201,151,0.3)" : "rgba(124,111,255,0.3)"}`,
-                  animationDelay: `${i * 0.08}s`,
-                }}
-              />
-            </div>
-            <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "var(--font-family-mono)", color }}>{c.score}</div>
-            <div style={{ fontSize: 10, color: "var(--color-ink3)", fontWeight: 500, marginTop: 2 }}>
-              {c.name.split(" ")[0]}
-            </div>
+    <div className="flex justify-between gap-3">
+      {criteria.map((c, i) => (
+        <div key={c.name} className="flex-1 text-center">
+          <div className="flex items-end justify-center h-[70px] mb-1.5">
+            <div
+              className={`animate-bar-fill w-6 rounded-t ${barBgClass(c.score)} ${barShadowClass(c.score)}`}
+              style={{
+                height: `${c.score * 0.7}px`,
+                animationDelay: `${i * 0.08}s`,
+              }}
+            />
           </div>
-        );
-      })}
+          <div className={`text-[15px] font-extrabold font-mono ${barTextClass(c.score)}`}>{c.score}</div>
+          <div className="text-[10px] text-ink3 font-medium mt-0.5">
+            {c.name.split(" ")[0]}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

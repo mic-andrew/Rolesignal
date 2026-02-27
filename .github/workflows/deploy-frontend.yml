@@ -1,0 +1,101 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "client/**"
+      - ".github/workflows/deploy-frontend.yml"
+
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        run: cd client && npm ci
+
+      - name: Lint
+        run: cd client && npm run lint
+
+      - name: Type check
+        run: cd client && npx tsc -b --noEmit
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: "" # Same-origin via CloudFront
+        run: cd client && npm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: |
+          # Upload hashed assets with aggressive caching
+          aws s3 sync client/dist/ s3://${{ vars.FRONTEND_BUCKET }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html" \
+            --exclude "*.json"
+
+          # Upload index.html with no-cache (the "atomic switch")
+          aws s3 cp client/dist/index.html s3://${{ vars.FRONTEND_BUCKET }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+          # Upload JSON manifests with short cache
+          aws s3 sync client/dist/ s3://${{ vars.FRONTEND_BUCKET }}/ \
+            --exclude "*" \
+            --include "*.json" \
+            --cache-control "public, max-age=60"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          INVALIDATION_ID=$(aws cloudfront create-invalidation \
+            --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/index.html" "/*" \
+            --query 'Invalidation.Id' --output text)
+
+          echo "Invalidation: $INVALIDATION_ID"
+
+          # Wait for invalidation to complete
+          aws cloudfront wait invalidation-completed \
+            --distribution-id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --id $INVALIDATION_ID
+
+      - name: Smoke test
+        run: |
+          CF_DOMAIN=$(aws cloudfront get-distribution \
+            --id ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --query 'Distribution.DomainName' --output text)
+
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$CF_DOMAIN/" || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "Frontend serving correctly at https://$CF_DOMAIN/"
+              exit 0
+            fi
+            echo "Attempt $i: HTTP $STATUS, retrying in 15s..."
+            sleep 15
+          done
+          echo "::warning::CloudFront may still be propagating. Manual verification recommended."

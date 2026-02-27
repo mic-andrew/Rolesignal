@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { RiAddLine, RiBriefcaseLine } from "react-icons/ri";
 import { useDashboard } from "../hooks/useDashboard";
 import { Card } from "../components/ui/Card";
+import { StatCard } from "../components/ui/StatCard";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
@@ -29,7 +30,7 @@ export default function Dashboard() {
 
   if (!hasData) {
     return (
-      <div className="flex items-center justify-center animate-fade-in" style={{ minHeight: "60vh" }}>
+      <div className="flex items-center justify-center animate-fade-in min-h-[60vh]">
         <EmptyState
           title="Welcome to RoleSignal"
           description="Set up your first interview to start evaluating candidates with AI-powered assessments."
@@ -40,63 +41,58 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
-      {/* Metric cards */}
-      <div className="grid grid-cols-4 gap-3.5 mb-7">
+    <div className="space-y-8">
+      <div className="grid grid-cols-4 gap-5">
         {METRIC_CONFIG.map(({ key, label, color }, i) => (
-          <Card
+          <StatCard
             key={key}
-            padding="p-0"
-            className={`animate-fade-in delay-${(i + 1) as 1|2|3|4}`}
-            style={{ padding: "18px 22px", borderLeft: `3px solid ${color}` }}
-          >
-            <div className="text-[11px] font-semibold uppercase tracking-wide mb-2.5" style={{ color: "var(--color-ink3)" }}>
-              {label}
-            </div>
-            <span style={{ fontSize: 30, fontWeight: 800, letterSpacing: "-0.03em", color: "var(--color-ink)" }}>
-              {metrics?.[key] ?? 0}
-            </span>
-          </Card>
+            label={label}
+            value={metrics?.[key] ?? 0}
+            accentColor={color}
+            animationDelay={i + 1}
+          />
         ))}
       </div>
 
-      <div className="grid gap-5" style={{ gridTemplateColumns: "1fr 340px" }}>
-        <div>
-          {/* Pipeline */}
-          <div className="flex items-center justify-between animate-fade-in delay-4 mb-3.5">
-            <h2 className="text-[15px] font-bold" style={{ color: "var(--color-ink)" }}>Interview Pipeline</h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/setup")}>
-              <RiAddLine size={14} />New Interview
-            </Button>
-          </div>
+      <div className="grid gap-8 grid-cols-[1fr_400px]">
+        <div className="space-y-8">
+          <div>
+            <div className="flex items-center justify-between animate-fade-in delay-4 mb-4">
+              <h2 className="text-base font-bold text-ink">Interview Pipeline</h2>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/setup")}>
+                <RiAddLine size={14} />New Interview
+              </Button>
+            </div>
 
-          <div className="animate-fade-in delay-4 grid grid-cols-5 gap-2.5 mb-7">
-            {pipeline.map((col) => (
-              <Card key={col.stage} padding="p-0" className="text-center" style={{ padding: 14 }}>
-                <div className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--color-ink3)" }}>
-                  {col.label}
-                </div>
-                <div className="text-[26px] font-extrabold mb-2.5" style={{ color: col.color, letterSpacing: "-0.02em" }}>
-                  {col.count}
-                </div>
-                {col.candidateIds.slice(0, 2).map((cid: string) => (
-                  <button
-                    key={cid}
-                    onClick={() => navigate(`/evaluation/${cid}`)}
-                    className="flex items-center gap-1.5 w-full cursor-pointer border-0 hover:bg-[var(--acg2)] transition-colors"
-                    style={{ padding: "5px 7px", background: "var(--color-canvas2)", borderRadius: 6, marginBottom: 4 }}
+            <div className="animate-fade-in delay-4 grid grid-cols-5 gap-4">
+              {pipeline.map((col) => (
+                <Card key={col.stage} padding="p-0" className="text-center px-4 py-6">
+                  <div className="text-[10px] font-bold uppercase tracking-widest mb-1.5 text-ink3">
+                    {col.label}
+                  </div>
+                  <div
+                    className="text-2xl font-extrabold mb-3 tracking-tight"
+                    style={{ color: col.color }}
                   >
-                    <div className="shrink-0 rounded-full" style={{ width: 20, height: 20, background: "var(--color-brand)", opacity: 0.15 }} />
-                    <span className="text-[11px] font-medium" style={{ color: "var(--color-ink2)" }}>View</span>
-                  </button>
-                ))}
-              </Card>
-            ))}
+                    {col.count}
+                  </div>
+                  {col.candidateIds.slice(0, 2).map((cid: string) => (
+                    <button
+                      key={cid}
+                      onClick={() => navigate(`/evaluation/${cid}`)}
+                      className="flex items-center gap-1.5 w-full cursor-pointer border-0 hover:bg-(--acg2) transition-colors px-2 py-[5px] bg-canvas2 rounded-md mb-1"
+                    >
+                      <div className="shrink-0 rounded-full w-5 h-5 bg-brand opacity-15" />
+                      <span className="text-[11px] font-medium text-ink2">View</span>
+                    </button>
+                  ))}
+                </Card>
+              ))}
+            </div>
           </div>
 
-          {/* Interview roles */}
           <div className="animate-fade-in delay-5">
-            <h2 className="text-[15px] font-bold mb-3.5" style={{ color: "var(--color-ink)" }}>Interview Roles</h2>
+            <h2 className="text-base font-bold mb-4 text-ink">Interview Roles</h2>
             {roles.length === 0 ? (
               <EmptyState
                 title="No interview roles yet"
@@ -104,65 +100,61 @@ export default function Dashboard() {
                 action={{ label: "Create Interview", onClick: () => navigate("/setup") }}
               />
             ) : (
-              roles.map((role) => (
-                <Card
-                  key={role.id}
-                  glow
-                  padding="p-0"
-                  onClick={() => navigate("/rankings")}
-                  className="flex items-center justify-between mb-2"
-                  style={{ padding: "14px 18px" }}
-                >
-                  <div className="flex items-center gap-3.5">
-                    <div
-                      className="flex items-center justify-center text-brand"
-                      style={{ width: 38, height: 38, borderRadius: 10, background: "var(--acg)" }}
-                    >
-                      <RiBriefcaseLine size={18} />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold" style={{ color: "var(--color-ink)" }}>{role.title}</div>
-                      <div className="text-xs" style={{ color: "var(--color-ink3)" }}>
-                        {role.department} &middot; {role.candidateCount} candidates
+              <div className="space-y-2.5">
+                {roles.map((role) => (
+                  <Card
+                    key={role.id}
+                    glow
+                    padding="p-0"
+                    onClick={() => navigate("/interviews")}
+                    className="flex items-center justify-between px-6 py-5"
+                  >
+                    <div className="flex items-center gap-3.5">
+                      <div className="flex items-center justify-center text-brand w-[38px] h-[38px] rounded-[10px] bg-(--acg)">
+                        <RiBriefcaseLine size={18} />
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3.5">
-                    {role.avgScore > 0 && (
-                      <div className="text-right">
-                        <div className="text-[10px] font-semibold uppercase" style={{ color: "var(--color-ink3)" }}>Avg Score</div>
-                        <div className="text-lg font-extrabold font-mono" style={{ color: role.avgScore >= 80 ? "var(--color-success)" : "var(--color-warn)" }}>
-                          {role.avgScore}
+                      <div>
+                        <div className="text-sm font-bold text-ink">{role.title}</div>
+                        <div className="text-xs text-ink3">
+                          {role.department} &middot; {role.candidateCount} candidates
                         </div>
                       </div>
-                    )}
-                    <Badge variant="live" />
-                  </div>
-                </Card>
-              ))
+                    </div>
+                    <div className="flex items-center gap-3.5">
+                      {role.avgScore > 0 && (
+                        <div className="text-right">
+                          <div className="text-[10px] font-semibold uppercase text-ink3">Avg Score</div>
+                          <div className={`text-lg font-extrabold font-mono ${role.avgScore >= 80 ? "text-success" : "text-warn"}`}>
+                            {role.avgScore}
+                          </div>
+                        </div>
+                      )}
+                      <Badge variant="live" />
+                    </div>
+                  </Card>
+                ))}
+              </div>
             )}
           </div>
         </div>
 
-        {/* Activity feed */}
         <div className="animate-fade-in delay-5">
-          <h2 className="text-[15px] font-bold mb-3.5" style={{ color: "var(--color-ink)" }}>Activity</h2>
+          <h2 className="text-base font-bold mb-4 text-ink">Activity</h2>
           {activity.length === 0 ? (
-            <Card padding="p-0" style={{ padding: "24px 18px", textAlign: "center" }}>
-              <p className="text-xs" style={{ color: "var(--color-ink3)" }}>No activity yet. Create an interview to get started.</p>
+            <Card padding="p-0" className="px-5 py-6 text-center">
+              <p className="text-xs text-ink3">No activity yet. Create an interview to get started.</p>
             </Card>
           ) : (
-            <Card padding="p-0" style={{ maxHeight: 500, overflow: "auto" }}>
+            <Card padding="p-0" className="max-h-[500px] overflow-auto">
               {activity.map((item) => (
                 <div
                   key={item.id}
-                  className="flex cursor-pointer transition-colors hover:bg-[var(--acg2)]"
-                  style={{ gap: 12, padding: "13px 18px", borderBottom: "1px solid var(--color-edge)" }}
+                  className="flex cursor-pointer transition-colors hover:bg-(--acg2) gap-3 px-5 py-3.5 border-b border-edge"
                 >
-                  <span style={{ fontSize: 16, lineHeight: "20px" }}>{item.emoji}</span>
+                  <span className="text-base leading-5">{item.emoji}</span>
                   <div className="flex-1">
-                    <div className="text-[13px] font-medium leading-relaxed" style={{ color: "var(--color-ink)" }}>{item.text}</div>
-                    <div className="text-[11px] mt-0.5" style={{ color: "var(--color-ink3)" }}>{item.timeAgo}</div>
+                    <div className="text-[13px] font-medium leading-relaxed text-ink">{item.text}</div>
+                    <div className="text-[11px] mt-0.5 text-ink3">{item.timeAgo}</div>
                   </div>
                 </div>
               ))}

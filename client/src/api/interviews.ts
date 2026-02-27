@@ -36,6 +36,11 @@ export interface LaunchPayload {
     weight: number;
     question_count: number;
     color: string;
+    sub_criteria: Array<{
+      name: string;
+      description: string;
+      weight: number;
+    }>;
   }>;
   candidates: Array<{ name: string; email: string }>;
   config_duration: number;
@@ -57,6 +62,20 @@ export interface LaunchResponse {
   message: string;
 }
 
+export interface AddCandidatePayload {
+  name: string;
+  email: string;
+  config_duration?: number;
+  config_tone?: string;
+  config_adaptive?: boolean;
+}
+
+export interface InterviewUpdatePayload {
+  config_duration?: number;
+  config_tone?: string;
+  config_adaptive?: boolean;
+}
+
 export const interviewsApi = {
   list: (roleId?: string, status?: string) =>
     client
@@ -75,6 +94,15 @@ export const interviewsApi = {
       .post<LaunchResponse>("/api/interviews/launch", payload)
       .then((r) => r.data),
   complete: (id: string) => client.post(`/api/interviews/${id}/complete`),
+  delete: (id: string) => client.delete(`/api/interviews/${id}`),
+  update: (id: string, payload: InterviewUpdatePayload) =>
+    client
+      .patch<InterviewResponse>(`/api/interviews/${id}`, payload)
+      .then((r) => r.data),
+  addCandidate: (roleId: string, payload: AddCandidatePayload) =>
+    client
+      .post<InterviewResponse>(`/api/interviews/roles/${roleId}/candidates`, payload)
+      .then((r) => r.data),
   live: () =>
     client
       .get<{ count: number }>("/api/interviews/live")
