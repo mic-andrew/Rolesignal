@@ -5,7 +5,7 @@ import { interviewsApi } from "../api/interviews";
 import { rolesApi } from "../api/roles";
 import { criteriaLibraryApi } from "../api/criteriaLibrary";
 import { useUIStore } from "../stores/uiStore";
-import type { Criterion, CriteriaTemplate, InterviewConfig, RoleSeniority } from "../types";
+import type { Criterion, InterviewConfig, RoleSeniority } from "../types";
 
 const STEP_COUNT = 5;
 

@@ -25,6 +25,7 @@ class InterviewResponse(CamelModel):
     started_at: str | None = None
     completed_at: str | None = None
     candidate_name: str = ""
+    candidate_email: str = ""
     role_title: str = ""
     link: str = ""
 

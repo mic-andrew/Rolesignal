@@ -1,12 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { rolesApi } from "../api/roles";
 import { candidatesApi } from "../api/candidates";
+import type { ScoreFilter, SortDirection } from "../types";
 
 export function useRankings() {
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
-  const [compareMode, setCompareMode]       = useState(false);
-  const [selectedIds, setSelectedIds]       = useState<string[]>([]);
+  const [filter, setFilter] = useState<ScoreFilter>("all");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const rolesQuery = useQuery({
     queryKey: ["roles"],
@@ -26,35 +27,32 @@ export function useRankings() {
 
   const allCandidates = candidatesQuery.data ?? [];
 
-  // Only show candidates who have completed interviews and been evaluated
+  const filteredCandidates = useMemo(() => {
+    const evaluated = allCandidates.filter((c) => c.score > 0);
+    switch (filter) {
+      case "80+":   return evaluated.filter((c) => c.score >= 80);
+      case "70-79": return evaluated.filter((c) => c.score >= 70 && c.score < 80);
+      case "<70":   return evaluated.filter((c) => c.score < 70);
+      default:      return evaluated;
+    }
+  }, [allCandidates, filter]);
+
   const candidates = useMemo(
-    () => allCandidates.filter((c) => c.score > 0),
-    [allCandidates],
+    () =>
+      [...filteredCandidates].sort((a, b) =>
+        sortDirection === "desc" ? b.score - a.score : a.score - b.score,
+      ),
+    [filteredCandidates, sortDirection],
   );
 
-  const selectRole = (roleId: string) => {
+  const selectRole = useCallback((roleId: string) => {
     setSelectedRoleId(roleId);
-    setSelectedIds([]);
-    setCompareMode(false);
-  };
+    setFilter("all");
+  }, []);
 
-  const toggleCompare = () => {
-    if (!compareMode) {
-      const defaultIds = candidates.slice(0, 2).map((c) => c.id);
-      setSelectedIds(defaultIds);
-    }
-    setCompareMode((v) => !v);
-  };
-
-  const toggleSelected = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id].slice(-3),
-    );
-  };
-
-  const selectedCandidates = candidates.filter((c) => selectedIds.includes(c.id));
+  const toggleSort = useCallback(() => {
+    setSortDirection((d) => (d === "desc" ? "asc" : "desc"));
+  }, []);
 
   return {
     roles,
@@ -62,10 +60,9 @@ export function useRankings() {
     selectRole,
     candidates,
     isLoading: rolesQuery.isLoading || candidatesQuery.isLoading,
-    compareMode,
-    selectedIds,
-    selectedCandidates,
-    toggleCompare,
-    toggleSelected,
+    filter,
+    setFilter,
+    sortDirection,
+    toggleSort,
   };
 }

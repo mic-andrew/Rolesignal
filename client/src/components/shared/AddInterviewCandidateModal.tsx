@@ -4,34 +4,34 @@ import {
   RiUserAddLine,
   RiUserLine,
   RiMailLine,
-  RiBriefcaseLine,
   RiCheckLine,
 } from "react-icons/ri";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
-import { useAddCandidate } from "../../hooks/useAddCandidate";
 
-interface AddCandidateModalProps {
+interface AddInterviewCandidateModalProps {
+  name: string;
+  email: string;
+  isEmailValid: boolean;
+  isPending: boolean;
+  onNameChange: (value: string) => void;
+  onEmailChange: (value: string) => void;
+  onSubmit: () => void;
   onClose: () => void;
-  defaultRoleId?: string;
 }
 
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalProps) {
-  const {
-    name, setName,
-    email, setEmail,
-    roleId, setRoleId,
-    roles,
-    canSubmit,
-    isPending,
-    handleSubmit,
-  } = useAddCandidate(defaultRoleId, onClose);
-
-  const emailValid = email.length > 0 && isValidEmail(email);
+export function AddInterviewCandidateModal({
+  name,
+  email,
+  isEmailValid,
+  isPending,
+  onNameChange,
+  onEmailChange,
+  onSubmit,
+  onClose,
+}: AddInterviewCandidateModalProps) {
+  const canSubmit = name.trim().length > 0 && isEmailValid && !isPending;
+  const showEmailError = email.length > 0 && !isEmailValid;
 
   return (
     <div
@@ -50,7 +50,7 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
             </div>
             <div>
               <h3 className="text-[15px] font-bold text-ink">Add Candidate</h3>
-              <p className="text-[11px] text-ink3">Add a new candidate to an interview</p>
+              <p className="text-[11px] text-ink3">Add a new candidate to this interview</p>
             </div>
           </div>
           <button
@@ -62,7 +62,10 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="px-6 py-5">
+        <form
+          onSubmit={(e) => { e.preventDefault(); onSubmit(); }}
+          className="px-6 py-5"
+        >
           <div className="flex flex-col gap-4">
             <div>
               <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-ink2">
@@ -73,9 +76,8 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
                 className="input-field"
                 placeholder="Jane Smith"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => onNameChange(e.target.value)}
                 autoFocus
-                required
               />
             </div>
 
@@ -87,36 +89,20 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
               <div className="relative">
                 <input
                   type="email"
-                  className={`input-field ${email.length > 0 && !emailValid ? "border-danger!" : ""}`}
+                  className={`input-field ${showEmailError ? "border-danger!" : ""}`}
                   placeholder="jane@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  onChange={(e) => onEmailChange(e.target.value)}
                 />
-                {emailValid && (
+                {isEmailValid && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     <RiCheckLine size={14} className="text-success" />
                   </div>
                 )}
               </div>
-            </div>
-
-            <div>
-              <label className="flex items-center gap-1.5 text-xs font-semibold mb-2 text-ink2">
-                <RiBriefcaseLine size={13} className="text-ink3" />
-                Role
-              </label>
-              <select
-                className="input-field appearance-none cursor-pointer"
-                value={roleId}
-                onChange={(e) => setRoleId(e.target.value)}
-                required
-              >
-                <option value="">Select a role...</option>
-                {roles.map((r) => (
-                  <option key={r.id} value={r.id}>{r.title}</option>
-                ))}
-              </select>
+              {showEmailError && (
+                <p className="text-[11px] text-danger mt-1">Please enter a valid email address</p>
+              )}
             </div>
           </div>
 
@@ -124,7 +110,7 @@ export function AddCandidateModal({ onClose, defaultRoleId }: AddCandidateModalP
             <Button variant="ghost" size="sm" onClick={onClose} type="button">
               Cancel
             </Button>
-            <Button size="sm" type="submit" disabled={!canSubmit || isPending}>
+            <Button size="sm" type="submit" disabled={!canSubmit}>
               {isPending ? (
                 <RiLoader4Line size={14} className="animate-spin-slow" />
               ) : (

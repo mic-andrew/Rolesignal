@@ -20,7 +20,7 @@ export function TranscriptPanel({
               msg.speaker === "ai" ? "text-brand" : "text-success"
             }`}
           >
-            {msg.speaker === "ai" ? "Aria" : candidateName}
+            {msg.speaker === "ai" ? "Sophie" : candidateName}
             <span className="text-ink3 font-normal ml-1.5 normal-case">
               {msg.timestamp}
             </span>

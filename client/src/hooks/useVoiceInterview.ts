@@ -31,6 +31,12 @@ interface UseVoiceInterviewReturn {
 
 const OPENAI_REALTIME_URL = "https://api.openai.com/v1/realtime";
 
+/**
+ * Delay (ms) after AI finishes speaking before re-enabling the mic.
+ * Prevents echo bleed from the tail end of AI audio being picked up.
+ */
+const MIC_UNMUTE_DELAY_MS = 300;
+
 export function useVoiceInterview(): UseVoiceInterviewReturn {
   const { token } = useParams<{ token: string }>();
   const [connectionState, setConnectionState] =
@@ -47,6 +53,14 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const msgCountRef = useRef(0);
   const transcriptRef = useRef<TranscriptMessage[]>([]);
+  const micIntentRef = useRef(true);
+  const unmuteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Synchronous guard against double-connect (React Strict Mode) ──
+  // React state updates are batched/async, so checking `connectionState`
+  // in connect() doesn't prevent a second call during the same render
+  // cycle. This ref is set synchronously and prevents duplicate sessions.
+  const connectCalledRef = useRef(false);
 
   const interviewQuery = useQuery<InterviewPublicData>({
     queryKey: ["interview-public", token],
@@ -87,16 +101,48 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
     [],
   );
 
+  /** Mute local mic tracks to prevent echo while AI speaks. */
+  const muteLocalTracks = useCallback(() => {
+    if (unmuteTimerRef.current) {
+      clearTimeout(unmuteTimerRef.current);
+      unmuteTimerRef.current = null;
+    }
+    if (localStreamRef.current) {
+      localStreamRef.current.getAudioTracks().forEach((track) => {
+        track.enabled = false;
+      });
+    }
+  }, []);
+
+  /** Restore mic tracks after AI finishes (with delay for echo tail). */
+  const unmuteLocalTracks = useCallback(() => {
+    if (unmuteTimerRef.current) {
+      clearTimeout(unmuteTimerRef.current);
+    }
+    unmuteTimerRef.current = setTimeout(() => {
+      if (micIntentRef.current && localStreamRef.current) {
+        localStreamRef.current.getAudioTracks().forEach((track) => {
+          track.enabled = true;
+        });
+      }
+      unmuteTimerRef.current = null;
+    }, MIC_UNMUTE_DELAY_MS);
+  }, []);
+
   const handleRealtimeEvent = useCallback(
     (event: Record<string, unknown>) => {
       const type = event.type as string;
 
+      // AI started generating a response — mute mic to prevent echo
       if (type === "response.created") {
         setIsAiSpeaking(true);
+        muteLocalTracks();
       }
 
+      // AI finished responding — unmute mic after a brief delay
       if (type === "response.done") {
         setIsAiSpeaking(false);
+        unmuteLocalTracks();
       }
 
       // AI transcript (text of what the AI said)
@@ -116,10 +162,14 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
         addTranscript("candidate", event.transcript as string);
       }
     },
-    [addTranscript],
+    [addTranscript, muteLocalTracks, unmuteLocalTracks],
   );
 
   const cleanup = useCallback(() => {
+    if (unmuteTimerRef.current) {
+      clearTimeout(unmuteTimerRef.current);
+      unmuteTimerRef.current = null;
+    }
     if (localStreamRef.current) {
       localStreamRef.current.getTracks().forEach((t) => t.stop());
       localStreamRef.current = null;
@@ -133,7 +183,9 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
       pcRef.current = null;
     }
     if (audioElRef.current) {
+      audioElRef.current.pause();
       audioElRef.current.srcObject = null;
+      audioElRef.current.remove();
       audioElRef.current = null;
     }
     if (timerRef.current) {
@@ -143,21 +195,26 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
   }, []);
 
   const connect = useCallback(async () => {
-    if (!token || connectionState !== "idle") return;
+    // Synchronous ref guard — prevents React Strict Mode double-connect
+    if (!token || connectCalledRef.current) return;
+    connectCalledRef.current = true;
     setConnectionState("connecting");
 
     try {
-      // 1. Get ephemeral token from backend
+      // 1. Get ephemeral token + session config from backend
       const session = await interviewPublicApi.getRealtimeSession(token);
 
       // 2. Create RTCPeerConnection
       const pc = new RTCPeerConnection();
       pcRef.current = pc;
 
-      // 3. Remote audio playback
-      const audioEl = new Audio();
+      // 3. Remote audio playback — attached to DOM for proper echo cancellation
+      const audioEl = document.createElement("audio");
       audioEl.autoplay = true;
+      audioEl.style.display = "none";
+      document.body.appendChild(audioEl);
       audioElRef.current = audioEl;
+
       pc.ontrack = (event) => {
         audioEl.srcObject = event.streams[0];
       };
@@ -175,20 +232,41 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
         pc.addTrack(track, localStream);
       });
 
-      // 5. Data channel for transcript events from OpenAI
+      // 5. Data channel for events from OpenAI
       const dc = pc.createDataChannel("oai-events");
       dcRef.current = dc;
+
       dc.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data);
           handleRealtimeEvent(msg);
         } catch {
-          // Non-JSON event
+          // Non-JSON event — ignore
         }
       };
 
-      // Trigger AI to speak first once the data channel opens
       dc.onopen = () => {
+        // Configure session via data channel to ensure settings are applied
+        dc.send(
+          JSON.stringify({
+            type: "session.update",
+            session: {
+              instructions: session.systemPrompt,
+              input_audio_transcription: { model: "whisper-1" },
+              turn_detection: {
+                type: "semantic_vad",
+                eagerness: "low",
+                create_response: true,
+                interrupt_response: true,
+              },
+            },
+          }),
+        );
+
+        // Mute mic before AI greeting to prevent echo pickup
+        muteLocalTracks();
+
+        // Trigger AI to speak first (opening greeting)
         dc.send(JSON.stringify({ type: "response.create" }));
       };
 
@@ -235,12 +313,14 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
       await interviewPublicApi.startInterview(token);
     } catch (err) {
       console.error("WebRTC connection failed:", err);
+      connectCalledRef.current = false;
       setConnectionState("error");
       cleanup();
     }
-  }, [token, connectionState, handleRealtimeEvent, cleanup]);
+  }, [token, handleRealtimeEvent, cleanup, muteLocalTracks]);
 
   const disconnect = useCallback(() => {
+    connectCalledRef.current = false;
     setConnectionState("disconnected");
     cleanup();
   }, [cleanup]);
@@ -271,6 +351,7 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
   const toggleMic = useCallback(() => {
     setMicEnabled((prev) => {
       const next = !prev;
+      micIntentRef.current = next;
       if (localStreamRef.current) {
         localStreamRef.current.getAudioTracks().forEach((track) => {
           track.enabled = next;
@@ -279,6 +360,15 @@ export function useVoiceInterview(): UseVoiceInterviewReturn {
       return next;
     });
   }, []);
+
+  // Cleanup on unmount — ensures React Strict Mode teardown closes
+  // the first connection before the remount creates a new one.
+  useEffect(() => {
+    return () => {
+      connectCalledRef.current = false;
+      cleanup();
+    };
+  }, [cleanup]);
 
   return {
     token: token ?? "",

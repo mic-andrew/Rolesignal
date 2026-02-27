@@ -13,6 +13,7 @@ export interface InterviewResponse {
   startedAt: string | null;
   completedAt: string | null;
   candidateName: string;
+  candidateEmail: string;
   roleTitle: string;
   link: string;
 }

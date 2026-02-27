@@ -1,3 +1,20 @@
+// ── Verdict & Scorecard ───────────────────────────────────────────────────────
+export type Verdict       = "Strong Yes" | "Lean Yes" | "Neutral" | "Lean No";
+export type ScoreFilter   = "all" | "80+" | "70-79" | "<70";
+export type SortDirection = "asc" | "desc";
+
+export interface EvaluationInsight {
+  criterionName: string;
+  score: number;
+  confidence: number;
+  insightText: string;
+  evidence: string[];
+  riskFlags: string[];
+  weight: number;
+  subCriterionScores: SubCriterionScore[];
+  matchedTranscriptId: string | null;
+}
+
 // ── API wrappers (keep for server compatibility) ──────────────────────────────
 export interface ItemResponse<T> { data: T; message: string; }
 export interface ListResponse<T> { data: T[]; count: number; }
@@ -24,6 +41,7 @@ export interface CandidateSkills {
 export interface Candidate {
   id: string;
   name: string;
+  email: string;
   initials: string;
   score: number;
   status: CandidateStatus;

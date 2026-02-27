@@ -315,6 +315,7 @@ def _to_response(interview: Interview) -> InterviewResponse:
     candidate = interview.candidate
     role_title = candidate.role.title if candidate and candidate.role else ""
     candidate_name = candidate.name if candidate else ""
+    candidate_email = candidate.email if candidate else ""
     link = f"{settings.frontend_url}/i/{interview.token}"
 
     return InterviewResponse(
@@ -330,6 +331,7 @@ def _to_response(interview: Interview) -> InterviewResponse:
         started_at=interview.started_at.isoformat() if interview.started_at else None,
         completed_at=interview.completed_at.isoformat() if interview.completed_at else None,
         candidate_name=candidate_name,
+        candidate_email=candidate_email,
         role_title=role_title,
         link=link,
     )

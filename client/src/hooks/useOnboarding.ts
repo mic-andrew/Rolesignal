@@ -8,11 +8,11 @@ import type { Criterion, RoleSeniority } from "../types";
 const STEP_COUNT = 3;
 
 const DEFAULT_CRITERIA: Criterion[] = [
-  { id: "c1", name: "Technical Skills", description: "Core technical competency", weight: 30, questionCount: 4, color: "#7C6FFF" },
-  { id: "c2", name: "Problem Solving", description: "Analytical thinking", weight: 25, questionCount: 3, color: "#7C6FFF" },
-  { id: "c3", name: "Communication", description: "Clear communication skills", weight: 20, questionCount: 3, color: "#7C6FFF" },
-  { id: "c4", name: "Team Collaboration", description: "Working with others", weight: 15, questionCount: 2, color: "#7C6FFF" },
-  { id: "c5", name: "Culture Fit", description: "Alignment with values", weight: 10, questionCount: 2, color: "#7C6FFF" },
+  { id: "c1", name: "Technical Skills", description: "Core technical competency", weight: 30, questionCount: 4, color: "#7C6FFF", subCriteria: [] },
+  { id: "c2", name: "Problem Solving", description: "Analytical thinking", weight: 25, questionCount: 3, color: "#7C6FFF", subCriteria: [] },
+  { id: "c3", name: "Communication", description: "Clear communication skills", weight: 20, questionCount: 3, color: "#7C6FFF", subCriteria: [] },
+  { id: "c4", name: "Team Collaboration", description: "Working with others", weight: 15, questionCount: 2, color: "#7C6FFF", subCriteria: [] },
+  { id: "c5", name: "Culture Fit", description: "Alignment with values", weight: 10, questionCount: 2, color: "#7C6FFF", subCriteria: [] },
 ];
 
 export function useOnboarding() {
@@ -69,6 +69,7 @@ export function useOnboarding() {
           weight: newWeight,
           questionCount: 2,
           color: "#7C6FFF",
+          subCriteria: [],
         },
       ];
     });

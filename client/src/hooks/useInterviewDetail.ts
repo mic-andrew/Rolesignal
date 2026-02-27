@@ -7,6 +7,8 @@ import { rolesApi } from "../api/roles";
 import type { RoleDetail } from "../api/roles";
 import { useUIStore } from "../stores/uiStore";
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function useInterviewDetail() {
   const { roleId } = useParams<{ roleId: string }>();
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export function useInterviewDetail() {
 
   const [newName, setNewName] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const roleQuery = useQuery<RoleDetail>({
     queryKey: ["role-detail", roleId],
@@ -63,7 +66,7 @@ export function useInterviewDetail() {
       interviewsApi.addCandidate(roleId!, {
         name: data.name,
         email: data.email,
-        config_duration: role?.criteria?.[0] ? interviews[0]?.configDuration : 30,
+        config_duration: interviews[0]?.configDuration ?? 30,
         config_tone: interviews[0]?.configTone ?? "Conversational",
         config_adaptive: interviews[0]?.configAdaptive ?? true,
       }),
@@ -74,7 +77,8 @@ export function useInterviewDetail() {
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       setNewName("");
       setNewEmail("");
-      showToast("Candidate added", "success");
+      setIsAddModalOpen(false);
+      showToast("Candidate added successfully", "success");
     },
     onError: (err: unknown) => {
       const detail =
@@ -88,15 +92,32 @@ export function useInterviewDetail() {
     },
   });
 
+  const isEmailValid = EMAIL_RE.test(newEmail.trim());
+
   const addCandidate = useCallback(() => {
     const name = newName.trim();
     const email = newEmail.trim();
-    if (!name || !email) {
-      showToast("Enter both name and email", "warning");
+    if (!name) {
+      showToast("Please enter a candidate name", "warning");
+      return;
+    }
+    if (!email) {
+      showToast("Please enter an email address", "warning");
+      return;
+    }
+    if (!EMAIL_RE.test(email)) {
+      showToast("Please enter a valid email address", "warning");
       return;
     }
     addCandidateMutation.mutate({ name, email });
   }, [newName, newEmail, addCandidateMutation, showToast]);
+
+  const openAddModal = useCallback(() => setIsAddModalOpen(true), []);
+  const closeAddModal = useCallback(() => {
+    setIsAddModalOpen(false);
+    setNewName("");
+    setNewEmail("");
+  }, []);
 
   const deleteInterview = useCallback(
     (id: string) => deleteMutation.mutate(id),
@@ -115,8 +136,12 @@ export function useInterviewDetail() {
     setNewName,
     newEmail,
     setNewEmail,
+    isEmailValid,
     addCandidate,
     isAddingCandidate: addCandidateMutation.isPending,
+    isAddModalOpen,
+    openAddModal,
+    closeAddModal,
     deleteInterview,
     goBack,
   };

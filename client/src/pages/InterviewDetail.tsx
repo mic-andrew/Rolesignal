@@ -5,9 +5,6 @@ import {
   RiAddLine,
   RiTimeLine,
   RiGroupLine,
-  RiLoader4Line,
-  RiUserLine,
-  RiMailLine,
 } from "react-icons/ri";
 import { useInterviewDetail } from "../hooks/useInterviewDetail";
 import { useConfirmModal } from "../hooks/useConfirmModal";
@@ -18,12 +15,19 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { LoadingSkeleton } from "../components/ui/LoadingSkeleton";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
+import { AddInterviewCandidateModal } from "../components/shared/AddInterviewCandidateModal";
 import { useUIStore } from "../stores/uiStore";
 
 function makeInitials(name: string): string {
   const parts = name.trim().split(" ");
   if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
+}
+
+function deriveEffectiveStatus(interview: InterviewResponse): "pending" | "in_progress" | "completed" {
+  if (interview.completedAt) return "completed";
+  if (interview.startedAt) return "in_progress";
+  return "pending";
 }
 
 interface CandidateRowProps {
@@ -33,9 +37,10 @@ interface CandidateRowProps {
 }
 
 function CandidateRow({ interview, onCopyLink, onDelete }: CandidateRowProps) {
+  const effectiveStatus = deriveEffectiveStatus(interview);
   const statusLabel =
-    interview.status === "in_progress" ? "In progress"
-    : interview.status === "completed" ? "Completed"
+    effectiveStatus === "in_progress" ? "In progress"
+    : effectiveStatus === "completed" ? `Completed ${new Date(interview.completedAt!).toLocaleDateString()}`
     : "Pending";
 
   return (
@@ -45,13 +50,16 @@ function CandidateRow({ interview, onCopyLink, onDelete }: CandidateRowProps) {
         <div className="text-sm font-semibold text-ink">
           {interview.candidateName}
         </div>
+        {interview.candidateEmail && (
+          <div className="text-[11px] text-ink3 mt-0.5 truncate">
+            {interview.candidateEmail}
+          </div>
+        )}
         <div className="text-xs text-ink3 mt-0.5">
-          {interview.completedAt
-            ? `Completed ${new Date(interview.completedAt).toLocaleDateString()}`
-            : statusLabel}
+          {statusLabel}
         </div>
       </div>
-      <Badge variant={interview.status as "pending" | "in_progress" | "completed"} />
+      <Badge variant={effectiveStatus} />
       <div className="flex items-center gap-1">
         <button
           onClick={() => onCopyLink(interview.link)}
@@ -169,12 +177,16 @@ export default function InterviewDetail() {
           <h2 className="text-sm font-bold text-ink">
             Candidates ({hook.stats.total})
           </h2>
+          <Button size="sm" onClick={hook.openAddModal}>
+            <RiAddLine size={14} />
+            Add Candidate
+          </Button>
         </div>
 
         <Card padding="p-0">
           {hook.interviews.length === 0 ? (
             <div className="px-5 py-8 text-center">
-              <p className="text-sm text-ink3">No candidates yet. Add one below.</p>
+              <p className="text-sm text-ink3">No candidates yet. Click "Add Candidate" to get started.</p>
             </div>
           ) : (
             hook.interviews.map((iv) => (
@@ -186,46 +198,22 @@ export default function InterviewDetail() {
               />
             ))
           )}
-
-          {/* Add candidate inline form */}
-          <div className="flex items-center gap-3 px-5 py-3.5 border-t border-edge bg-canvas2/50">
-            <div className="flex items-center gap-2 flex-1">
-              <RiUserLine size={15} className="text-ink3 shrink-0" />
-              <input
-                type="text"
-                placeholder="Candidate name"
-                value={hook.newName}
-                onChange={(e) => hook.setNewName(e.target.value)}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-ink placeholder:text-ink3/50"
-              />
-            </div>
-            <div className="w-px h-5 bg-edge" />
-            <div className="flex items-center gap-2 flex-1">
-              <RiMailLine size={15} className="text-ink3 shrink-0" />
-              <input
-                type="email"
-                placeholder="Email address"
-                value={hook.newEmail}
-                onChange={(e) => hook.setNewEmail(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") hook.addCandidate(); }}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-ink placeholder:text-ink3/50"
-              />
-            </div>
-            <Button
-              size="sm"
-              onClick={hook.addCandidate}
-              className={hook.isAddingCandidate ? "opacity-60 pointer-events-none" : ""}
-            >
-              {hook.isAddingCandidate ? (
-                <RiLoader4Line size={14} className="animate-spin" />
-              ) : (
-                <RiAddLine size={14} />
-              )}
-              Add
-            </Button>
-          </div>
         </Card>
       </div>
+
+      {/* Add Candidate Modal */}
+      {hook.isAddModalOpen && (
+        <AddInterviewCandidateModal
+          name={hook.newName}
+          email={hook.newEmail}
+          isEmailValid={hook.isEmailValid}
+          isPending={hook.isAddingCandidate}
+          onNameChange={hook.setNewName}
+          onEmailChange={hook.setNewEmail}
+          onSubmit={hook.addCandidate}
+          onClose={hook.closeAddModal}
+        />
+      )}
 
       <ConfirmModal
         isOpen={modal.isOpen}

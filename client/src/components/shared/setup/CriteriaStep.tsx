@@ -184,7 +184,7 @@ function EmptyCriteriaState({
           </Button>
         )}
         {hasTemplates && (
-          <Button variant="secondary" onClick={onShowLibrary}>
+          <Button variant="ghost" onClick={onShowLibrary}>
             <RiBookOpenLine size={14} />Use from Library
           </Button>
         )}
