@@ -6,35 +6,23 @@ Import all models here so Alembic can discover them for autogenerate.
 from app.models.base import Base
 from app.models.organization import Organization
 from app.models.user import User
-from app.models.role import InterviewRole
-from app.models.criterion import Criterion
-from app.models.candidate import Candidate
-from app.models.interview import Interview
-from app.models.evaluation import Evaluation
-from app.models.criterion_score import CriterionScore
-from app.models.transcript_message import TranscriptMessage
-from app.models.audit_event import AuditEvent
-from app.models.interview_template import InterviewTemplate
-from app.models.integration import Integration
-from app.models.sub_criterion import SubCriterion
-from app.models.sub_criterion_score import SubCriterionScore
-from app.models.criteria_template import CriteriaTemplate
+from app.models.topic import Topic
+from app.models.problem import Problem
+from app.models.test_case import TestCase
+from app.models.submission import Submission
+from app.models.user_progress import UserProgress
+from app.models.tutoring_session import TutoringSession
+from app.models.tutoring_message import TutoringMessage
 
 __all__ = [
     "Base",
     "Organization",
     "User",
-    "InterviewRole",
-    "Criterion",
-    "Candidate",
-    "Interview",
-    "Evaluation",
-    "CriterionScore",
-    "TranscriptMessage",
-    "AuditEvent",
-    "InterviewTemplate",
-    "Integration",
-    "SubCriterion",
-    "SubCriterionScore",
-    "CriteriaTemplate",
+    "Topic",
+    "Problem",
+    "TestCase",
+    "Submission",
+    "UserProgress",
+    "TutoringSession",
+    "TutoringMessage",
 ]

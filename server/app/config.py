@@ -29,10 +29,10 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
 
-    # Email (Resend)
-    resend_api_key: str = ""
-    resend_from_email: str = "RoleSignal <noreply@rolesignal.com>"
-    resend_template_id: str = ""
+    # Judge0 (code execution)
+    judge0_api_url: str = "http://localhost:2358"
+    judge0_api_timeout: int = 30
+    judge0_max_wait_seconds: int = 15
 
     # LLM (model-agnostic)
     llm_provider: str = "openai"
@@ -44,12 +44,12 @@ class Settings(BaseSettings):
     # OpenAI credentials
     openai_api_key: str = ""
 
-    # OpenAI Realtime — Voice interviews (separate key)
+    # OpenAI Realtime — Voice tutoring (separate key)
     openai_realtime_api_key: str = ""
     openai_realtime_model: str = "gpt-4o-mini-realtime-preview"
     openai_realtime_voice: str = "alloy"
 
-    model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
+    model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
 settings = Settings()

@@ -1,27 +1,20 @@
 import {
-  RiDashboardLine, RiBriefcaseLine, RiGroupLine, RiVideoOnLine,
-  RiBarChartLine, RiFileTextLine, RiSettings3Line, RiFileList2Line,
+  RiDashboardLine, RiCodeLine, RiBookOpenLine, RiBarChartLine,
 } from "react-icons/ri";
-import { useQuery } from "@tanstack/react-query";
 import { useUIStore } from "../../stores/uiStore";
 import { useAuth } from "../../hooks/useAuth";
 import { useConfirmModal } from "../../hooks/useConfirmModal";
 import { ConfirmModal } from "../ui/ConfirmModal";
-import { interviewsApi } from "../../api/interviews";
 import { SidebarLogo } from "./SidebarLogo";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { CollapseToggle } from "./CollapseToggle";
-import { LiveIndicator, SidebarUserButton } from "./SidebarFooter";
+import { SidebarUserButton } from "./SidebarFooter";
 
 const NAV_ITEMS = [
-  { to: "/dashboard",  icon: RiDashboardLine, label: "Dashboard"        },
-  { to: "/interviews", icon: RiVideoOnLine,   label: "Interviews"       },
-  { to: "/candidates", icon: RiGroupLine,     label: "Candidates"       },
-  { to: "/setup",      icon: RiBriefcaseLine, label: "Create Interview" },
-  { to: "/scorecard",   icon: RiBarChartLine,  label: "Scorecard"        },
-  { to: "/criteria",   icon: RiFileList2Line, label: "Criteria"         },
-  { to: "/audit",      icon: RiFileTextLine,  label: "Audit Log"        },
-  { to: "/settings",   icon: RiSettings3Line, label: "Settings"         },
+  { to: "/dashboard", icon: RiDashboardLine, label: "Dashboard" },
+  { to: "/problems",  icon: RiCodeLine,      label: "Problems"  },
+  { to: "/topics",    icon: RiBookOpenLine,   label: "Topics"    },
+  { to: "/progress",  icon: RiBarChartLine,   label: "Progress"  },
 ];
 
 export function Sidebar() {
@@ -29,13 +22,6 @@ export function Sidebar() {
   const toggle = useUIStore((s) => s.toggleSidebar);
   const { user, logout } = useAuth();
   const modal = useConfirmModal();
-
-  const liveQuery = useQuery({
-    queryKey: ["interviews", "live"],
-    queryFn: () => interviewsApi.live(),
-    staleTime: 15_000,
-    enabled: !!user,
-  });
 
   const handleLogout = async () => {
     const confirmed = await modal.confirm({
@@ -67,7 +53,6 @@ export function Sidebar() {
         </nav>
 
         <div className={`border-t border-edge flex flex-col gap-2 shrink-0 ${collapsed ? "py-3.5 px-2" : "py-3.5 px-3"}`}>
-          <LiveIndicator count={liveQuery.data ?? 0} collapsed={collapsed} />
           <SidebarUserButton
             name={user?.name ?? "User"}
             initials={user?.initials ?? "??"}

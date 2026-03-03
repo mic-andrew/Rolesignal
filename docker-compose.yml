@@ -29,6 +29,71 @@ services:
       timeout: 5s
       retries: 5
 
+  judge0-server:
+    image: judge0/judge0:1.13.1
+    container_name: rolesignal-judge0
+    ports:
+      - "2358:2358"
+    depends_on:
+      judge0-postgres:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: judge0-postgres
+      POSTGRES_DB: judge0
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0_dev
+      REDIS_HOST: judge0-redis
+      RAILS_MAX_THREADS: 4
+      RAILS_ENV: production
+      SECRET_KEY_BASE: "rolesignal-judge0-dev-secret-key-base-change-in-production"
+
+  judge0-workers:
+    image: judge0/judge0:1.13.1
+    container_name: rolesignal-judge0-workers
+    command: ["./scripts/workers"]
+    depends_on:
+      judge0-postgres:
+        condition: service_healthy
+      judge0-redis:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: judge0-postgres
+      POSTGRES_DB: judge0
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0_dev
+      REDIS_HOST: judge0-redis
+    privileged: true
+
+  judge0-postgres:
+    image: postgres:16-alpine
+    container_name: rolesignal-judge0-postgres
+    environment:
+      POSTGRES_USER: judge0
+      POSTGRES_PASSWORD: judge0_dev
+      POSTGRES_DB: judge0
+    volumes:
+      - judge0_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U judge0"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  judge0-redis:
+    image: redis:7-alpine
+    container_name: rolesignal-judge0-redis
+    volumes:
+      - judge0_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
 volumes:
   postgres_data:
   redis_data:
+  judge0_postgres_data:
+  judge0_redis_data:

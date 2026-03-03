@@ -28,11 +28,7 @@ export function useAuth() {
     onSuccess: (res) => {
       localStorage.setItem("rs_token", res.data.token);
       queryClient.setQueryData(["auth", "me"], res.data.user);
-      if (!res.data.user.onboardingCompleted) {
-        navigate("/onboarding");
-      } else {
-        navigate("/interviews");
-      }
+      navigate("/dashboard");
     },
     onError: (error: AxiosError<{ detail?: string }>) => {
       showToast(extractError(error), "error");
@@ -44,7 +40,7 @@ export function useAuth() {
     onSuccess: (res) => {
       localStorage.setItem("rs_token", res.data.token);
       queryClient.setQueryData(["auth", "me"], res.data.user);
-      navigate("/onboarding");
+      navigate("/dashboard");
     },
     onError: (error: AxiosError<{ detail?: string }>) => {
       showToast(extractError(error), "error");
@@ -56,11 +52,7 @@ export function useAuth() {
     onSuccess: (res) => {
       localStorage.setItem("rs_token", res.data.token);
       queryClient.setQueryData(["auth", "me"], res.data.user);
-      if (!res.data.user.onboardingCompleted) {
-        navigate("/onboarding");
-      } else {
-        navigate("/interviews");
-      }
+      navigate("/dashboard");
     },
     onError: (error: AxiosError<{ detail?: string }>) => {
       showToast(extractError(error), "error");
