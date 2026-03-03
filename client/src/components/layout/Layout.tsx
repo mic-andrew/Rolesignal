@@ -3,21 +3,17 @@ import { Sidebar } from "./Sidebar";
 import { Header } from "./Header";
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard":  "Dashboard",
-  "/interviews": "Interviews",
-  "/setup":      "Create Interview",
-  "/candidates": "Candidates",
-  "/evaluation": "Evaluation",
-  "/scorecard":  "Scorecard",
-  "/settings":   "Settings",
-  "/audit":      "Audit & Governance",
+  "/dashboard": "Dashboard",
+  "/problems":  "Problems",
+  "/topics":    "Topics",
+  "/progress":  "Progress",
 };
 
 export function Layout() {
   const { pathname } = useLocation();
   const title =
     PAGE_TITLES[pathname] ??
-    (pathname.startsWith("/interviews/") ? "Interview Details" : "RoleSignal");
+    (pathname.startsWith("/problems/") ? "Problem" : "RoleSignal");
 
   return (
     <div className="flex min-h-screen bg-canvas">

@@ -1,236 +1,135 @@
-// ── Verdict & Scorecard ───────────────────────────────────────────────────────
-export type Verdict       = "Strong Yes" | "Lean Yes" | "Neutral" | "Lean No";
-export type ScoreFilter   = "all" | "80+" | "70-79" | "<70";
-export type SortDirection = "asc" | "desc";
-
-export interface EvaluationInsight {
-  criterionName: string;
-  score: number;
-  confidence: number;
-  insightText: string;
-  evidence: string[];
-  riskFlags: string[];
-  weight: number;
-  subCriterionScores: SubCriterionScore[];
-  matchedTranscriptId: string | null;
-}
-
-// ── API wrappers (keep for server compatibility) ──────────────────────────────
+// ── Shared API wrappers ──────────────────────────────────────────────────────
 export interface ItemResponse<T> { data: T; message: string; }
 export interface ListResponse<T> { data: T[]; count: number; }
 
-// ── Domain enums ──────────────────────────────────────────────────────────────
-export type CandidateStatus = "shortlisted" | "reviewed" | "pending" | "rejected";
-export type RoleStatus      = "live" | "draft" | "closed";
-export type RoleSeniority   = "Junior" | "Mid" | "Senior" | "Lead";
-export type InterviewStage  = "Intro" | "Technical" | "Behavioral" | "Situational" | "Closing";
-export type AITone          = "Professional" | "Conversational" | "Challenging";
-export type AuditEventType  = "ai" | "human" | "system";
-export type SettingsTab     = "general" | "team" | "templates" | "ai" | "brand" | "governance" | "integrations";
-export type PipelineStage   = "invited" | "scheduled" | "inProgress" | "completed" | "reviewed";
+// ── Domain enums ─────────────────────────────────────────────────────────────
+export type Difficulty = "easy" | "medium" | "hard";
+export type TopicCategory = "core_dsa" | "advanced" | "system_design";
+export type ProblemStatus = "active" | "draft";
+export type UserProblemStatus = "not_started" | "attempted" | "solved";
+export type SubmissionStatus =
+  | "pending"
+  | "running"
+  | "accepted"
+  | "wrong_answer"
+  | "time_limit"
+  | "runtime_error"
+  | "compile_error";
+export type Language = "python" | "javascript" | "typescript" | "java" | "cpp" | "go";
+export type TutoringMessageType = "text" | "hint" | "explanation" | "code_review";
 
-// ── Candidate ─────────────────────────────────────────────────────────────────
-export interface CandidateSkills {
-  tech: number;
-  behavioral: number;
-  communication: number;
-  problemSolving: number;
-  culture: number;
-}
-
-export interface Candidate {
+// ── Topic ────────────────────────────────────────────────────────────────────
+export interface Topic {
   id: string;
   name: string;
-  email: string;
-  initials: string;
-  score: number;
-  status: CandidateStatus;
-  date: string;
-  skills: CandidateSkills;
-  color: string;
-  role: string;
-  roleId: string;
-  duration: number;
+  slug: string;
+  description: string;
+  icon: string;
+  sortOrder: number;
+  category: TopicCategory;
+  problemCount: number;
 }
 
-// ── Role ──────────────────────────────────────────────────────────────────────
-export interface Role {
+// ── Problem ──────────────────────────────────────────────────────────────────
+export interface Problem {
   id: string;
   title: string;
-  department: string;
-  seniority: RoleSeniority;
-  location: string;
-  candidateCount: number;
-  avgScore: number;
-  status: RoleStatus;
+  slug: string;
+  difficulty: Difficulty;
+  topicId: string;
+  topicName: string;
+  acceptanceRate: number | null;
+  acceptedCount: number;
+  submissionCount: number;
+  userStatus: UserProblemStatus;
 }
 
-// ── Pipeline ──────────────────────────────────────────────────────────────────
-export interface PipelineColumn {
-  stage: PipelineStage;
-  label: string;
-  count: number;
-  color: string;
-  candidateIds: string[];
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
 }
 
-// ── Activity ──────────────────────────────────────────────────────────────────
-export interface ActivityItem {
-  id: string;
-  emoji: string;
-  text: string;
-  timeAgo: string;
-}
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
-export interface DashboardMetrics {
-  activeRoles: number;
-  interviewsThisWeek: number;
-  avgFitScore: number;
-  pendingReviews: number;
-}
-
-// ── Interview setup ───────────────────────────────────────────────────────────
-export interface SubCriterion {
-  id: string;
-  name: string;
+export interface ProblemDetail extends Problem {
   description: string;
-  weight: number;
+  constraints: string[];
+  examples: ProblemExample[];
+  starterCode: Record<Language, string>;
+  hints: string[];
+  timeComplexity: string;
+  spaceComplexity: string;
+  timeLimitMs: number;
+  memoryLimitKb: number;
 }
 
-export interface Criterion {
+// ── Test Case ────────────────────────────────────────────────────────────────
+export interface TestCase {
   id: string;
-  name: string;
-  description: string;
-  weight: number;
-  questionCount: number;
-  color: string;
-  subCriteria: SubCriterion[];
+  input: string;
+  expectedOutput: string;
+  isSample: boolean;
 }
 
-export interface InterviewConfig {
-  duration: 15 | 30 | 45 | 60;
-  tone: AITone;
-  adaptiveDifficulty: boolean;
-}
-
-export interface SetupRoleData {
-  title: string;
-  department: string;
-  seniority: RoleSeniority;
-  location: string;
-}
-
-// ── Interview room ────────────────────────────────────────────────────────────
-export interface TranscriptMessage {
+// ── Submission ───────────────────────────────────────────────────────────────
+export interface Submission {
   id: string;
-  speaker: "ai" | "candidate";
-  text: string;
-  timestamp: string;
-}
-
-export interface InterviewQuestion {
-  stage: InterviewStage;
-  text: string;
-}
-
-// ── Evaluation ────────────────────────────────────────────────────────────────
-export interface SubCriterionScore {
-  name: string;
-  score: number;
-  rationale: string;
-  evidence: string[];
-  weight: number;
-}
-
-export interface CriterionScore {
-  name: string;
-  score: number;
-  rationale: string;
-  evidence: string[];
-  riskFlags: string[];
-  weight: number;
-  subCriterionScores: SubCriterionScore[];
-}
-
-export interface CandidateEvaluation {
-  candidate: Candidate;
-  confidence: number;
-  criterionScores: CriterionScore[];
-  transcript: TranscriptMessage[];
-}
-
-export interface CriteriaTemplate {
-  id: string;
-  name: string;
-  description: string;
-  criteria: Array<{
-    name: string;
-    description: string;
-    weight: number;
-    subCriteria: Array<{
-      name: string;
-      description: string;
-      weight: number;
-    }>;
-  }>;
+  problemId: string;
+  language: Language;
+  status: SubmissionStatus;
+  runtimeMs: number | null;
+  memoryKb: number | null;
   createdAt: string;
-  updatedAt: string;
 }
 
-// ── Audit ─────────────────────────────────────────────────────────────────────
-export interface AuditEvent {
+export interface SubmissionDetail extends Submission {
+  sourceCode: string;
+  stdout: string | null;
+  stderr: string | null;
+}
+
+// ── Test Result (for run, not submit) ────────────────────────────────────────
+export interface TestResult {
+  testCaseId: string;
+  passed: boolean;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  runtimeMs: number | null;
+  status: SubmissionStatus;
+}
+
+// ── User Progress ────────────────────────────────────────────────────────────
+export interface UserProgress {
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  currentStreak: number;
+  longestStreak: number;
+  acceptanceRate: number;
+  topicProgress: TopicProgress[];
+}
+
+export interface TopicProgress {
+  topicId: string;
+  topicName: string;
+  solved: number;
+  total: number;
+}
+
+// ── Tutoring ─────────────────────────────────────────────────────────────────
+export interface TutoringMessage {
   id: string;
-  type: AuditEventType;
-  action: string;
-  detail: string;
-  time: string;
-  emoji: string;
+  speaker: "ai" | "user";
+  content: string;
+  messageType: TutoringMessageType;
+  createdAt: string;
 }
 
-export interface ReasoningStep {
-  label: string;
-  detail: string;
-}
-
-// ── Settings ──────────────────────────────────────────────────────────────────
-export interface AIConfig {
-  tone: AITone;
-  formality: number;
-  probingDepth: number;
-  warmth: number;
-  pace: number;
-}
-
-export interface TeamMember {
+export interface TutoringSession {
   id: string;
-  name: string;
-  initials: string;
-  email: string;
-  role: "Admin" | "Recruiter" | "Interviewer" | "Viewer";
-  status: "active" | "invited";
+  problemId: string;
+  startedAt: string;
+  endedAt: string | null;
+  voiceEnabled: boolean;
 }
-
-export interface Integration {
-  id: string;
-  name: string;
-  emoji: string;
-  connected: boolean;
-  description: string;
-}
-
-export interface InterviewTemplate {
-  id: string;
-  name: string;
-  role: string;
-  duration: number;
-  criteriaCount: number;
-  usedCount: number;
-}
-
-// ── Candidate grouping ───────────────────────────────────────────────────────
-export interface RoleCandidateGroup {
-  role: Role;
-  candidates: Candidate[];
-}
-

@@ -5,22 +5,10 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
-from app.api import (
-    auth,
-    audit,
-    candidates,
-    criteria_library,
-    dashboard,
-    evaluations,
-    interview_public,
-    interviews,
-    onboarding,
-    roles,
-    settings,
-)
+from app.api import auth, problems, progress, seed, submissions, topics, tutoring
 from app.config import settings as app_settings
-from app.schemas.common import HealthResponse
 
 logging.basicConfig(
     level=getattr(logging, app_settings.log_level),
@@ -31,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="RoleSignal API",
-    description="RoleSignal API",
-    version="0.1.0",
+    description="RoleSignal — DSA Learning Platform API",
+    version="0.2.0",
     redirect_slashes=False,
 )
 
@@ -63,21 +51,22 @@ app.add_middleware(
 
 # Public routes
 app.include_router(auth.router, prefix="/api")
-app.include_router(interview_public.router, prefix="/api")
 
 # Protected routes
-app.include_router(onboarding.router, prefix="/api")
-app.include_router(dashboard.router, prefix="/api")
-app.include_router(roles.router, prefix="/api")
-app.include_router(candidates.router, prefix="/api")
-app.include_router(interviews.router, prefix="/api")
-app.include_router(evaluations.router, prefix="/api")
-app.include_router(settings.router, prefix="/api")
-app.include_router(criteria_library.router, prefix="/api")
-app.include_router(audit.router, prefix="/api")
+app.include_router(problems.router, prefix="/api")
+app.include_router(topics.router, prefix="/api")
+app.include_router(submissions.router, prefix="/api")
+app.include_router(progress.router, prefix="/api")
+app.include_router(tutoring.router, prefix="/api")
+app.include_router(seed.router, prefix="/api")
+
+
+class HealthResponse(BaseModel):
+    status: str
+    version: str
 
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check() -> HealthResponse:
     """Health check endpoint."""
-    return HealthResponse(status="healthy", version="0.1.0")
+    return HealthResponse(status="healthy", version="0.2.0")

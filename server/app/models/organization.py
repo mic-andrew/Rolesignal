@@ -10,7 +10,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models.role import InterviewRole
     from app.models.user import User
 
 
@@ -24,4 +23,3 @@ class Organization(Base):
     onboarding_completed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     users: Mapped[list["User"]] = relationship(back_populates="organization")
-    roles: Mapped[list["InterviewRole"]] = relationship(back_populates="organization")
